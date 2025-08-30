@@ -1,0 +1,88 @@
+# -------------------------
+# Python / Django
+# -------------------------
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+*.egg
+*.manifest
+*.spec
+
+# Entornos virtuales
+.env
+*.env
+.venv/
+venv/
+ENV/
+env/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Archivos temporales / compilación
+*.log
+*.pot
+*.mo
+*.sqlite3
+db.sqlite3
+
+# Django specific
+local_settings.py
+media/
+staticfiles/
+static/
+
+# Migraciones (solo cache y compilados, no los .py)
+*/migrations/__pycache__/
+*/migrations/*.pyc
+*/migrations/*.pyo
+
+# -------------------------
+# PostgreSQL / pgAdmin
+# -------------------------
+# Dumps de la base de datos
+*.sql
+*.sql.gz
+*.dump
+
+# Archivos de configuración locales
+pgadmin4.db
+pgadmin4.log
+pgadmin4.pid
+pgadmin4_session/
+pgadmin4_storage/
+
+# Carpetas de datos (si usas volúmenes locales en lugar de Docker)
+pgdata/
+postgres_data/
+data/
+
+# -------------------------
+# IDEs / Editores
+# -------------------------
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# -------------------------
+# Sistema operativo
+# -------------------------
+.DS_Store
+Thumbs.db
+
+# -------------------------
+# Tests / Coverage
+# -------------------------
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
