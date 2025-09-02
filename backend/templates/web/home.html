@@ -1,0 +1,56 @@
+<!-- templates/portal/landing.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Landing Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+            background-color: #fff;
+            padding: 3rem 4rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        h1 {
+            margin-bottom: 2rem;
+        }
+        p {
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+            color: #333;
+        }
+        .button {
+            display: inline-block;
+            margin: 0.5rem 1rem;
+            padding: 0.8rem 2rem;
+            background-color: #007bff;
+            color: #fff;
+            font-weight: bold;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.2s;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Bienvenido a la plataforma</h1>
+        <p>Elige cómo deseas ingresar:</p>
+        <a class="button" href="{% url 'register_owner' %}">Registrarse como Propietario</a>
+        <a class="button" href="{% url 'register_tenant' %}">Registrarse como Arrendatario</a>
+    </div>
+</body>
+</html>

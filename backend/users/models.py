@@ -11,11 +11,10 @@ class PerfilUser(AbstractUser):
         arrendatario = "ARRENDATARIO", _("Arrendatario")
         arrendador = "ARRENDADOR", _("Arrendador")
 
-
     tipo_usuario = models.CharField(max_length=20, choices=TipoUsuario.choices, default=TipoUsuario.arrendatario)
     rut = models.CharField(max_length=50, unique=True)
 
-    REQUIRED_FIELDS = ['rut']
+    REQUIRED_FIELDS = ['rut', 'email', 'first_name', 'last_name']
 
     def __str__(self):
         return f"{self.get_username()} | {self.tipo_usuario}"

@@ -18,12 +18,19 @@ class Region(models.Model):
     def __str__(self):
         return f"{self.id}  | Region: {self.nombre} | Zona: {self.zona}"
     
+
+##########################################################################################################
+
+
 class Comuna(models.Model):
     nombre = models.CharField(max_length=50)
     region = models.ForeignKey(Region, on_delete=models.CASCADE, related_name="comunas") 
 
     def __str__(self):
         return f"{self.nombre} | Pertenece a la región: {self.region}"
+
+
+##########################################################################################################
 
 
 class Inmueble(models.Model):
@@ -47,9 +54,13 @@ class Inmueble(models.Model):
     actualizado = models.DateTimeField(auto_now=True)
     comuna = models.ForeignKey(Comuna, on_delete=models.PROTECT)
     tipo_inmueble = models.CharField(max_length=20, choices=TipoInmueble.choices)
+    arrendado = models.BooleanField(default=True)
 
     def __str__(self):
         return f"propietario: {self.propietario} | {self.nombre}"
+    
+
+##########################################################################################################
 
 
 class SolicitudArriendo(models.Model):

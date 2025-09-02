@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import Comuna, Region, Inmueble, SolicitudArriendo
-from django.contrib.auth.admin import UserAdmin
-# Register your models here.
+
+
 
 @admin.register(Comuna)
 class ComunaAdmin(admin.ModelAdmin):
