@@ -1,9 +1,96 @@
 {% load static %}
-{% extends "inmueble/base.html" %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Inmueble</title>
+    <style>
+        .remove-form {
+            cursor: pointer;      /* cambia a manito */
+            display: inline-block; /* asegura que el cursor funcione */
+            color: red;
+            font-weight: bold;
+            margin-left: 5px;
+        }
 
+    </style>
+</head>
+<body>
 
-{% block content %}
+<h1>Crear Inmueble</h1>
 
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
 
+    <!-- Formulario principal -->
+    <fieldset>
+        <legend>Datos del Inmueble</legend>
+        {{ form.as_p }}
+    </fieldset>
 
-{% endblock %}
+    <!-- Formset de imágenes -->
+    <fieldset id="imagenes-fieldset">
+        <legend>Imágenes</legend>
+        {{ img_formset.management_form }}
+        <div id="imagenes-forms">
+            {% for form in img_formset %}
+                <div class="formset-form">
+                    {{ form.imagen }}
+                    <span class="remove-form" onclick="removeForm(this)">✖</span>
+                </div>
+            {% endfor %}
+        </div>
+        <button type="button" id="add-imagen">Agregar Imagen</button>
+        <p>Máximo {{ img_formset.max_num }} imágenes</p>
+
+        <!-- Template oculto para clonar -->
+        <div id="imagenes-empty-form" style="display: none;">
+            <div class="formset-form">
+                <input type="file" name="imagenes-__prefix__-imagen" id="id_imagenes-__prefix__-imagen">
+                <span class="remove-form" onclick="removeForm(this)">✖</span>
+            </div>
+        </div>
+    </fieldset>
+
+    <!-- Formset de documentos -->
+    <fieldset id="documentos-fieldset">
+        <legend>Documentos</legend>
+        {{ doc_formset.management_form }}
+        <div id="documentos-forms">
+            {% for form in doc_formset %}
+                <div class="formset-form">
+                    {{ form.archivo }}
+                    <span class="remove-form" onclick="removeForm(this)">✖</span>
+                </div>
+            {% endfor %}
+        </div>
+        <button type="button" id="add-documento">Agregar Documento</button>
+        <p>Máximo {{ doc_formset.max_num }} documentos</p>
+
+        <!-- Template oculto para clonar -->
+        <div id="documentos-empty-form" style="display: none;">
+            <div class="formset-form">
+                <input type="file" name="documentos-__prefix__-archivo" id="id_documentos-__prefix__-archivo">
+                <span class="remove-form" onclick="removeForm(this)">✖</span>
+            </div>
+        </div>
+    </fieldset>
+
+    <button type="submit">Guardar</button>
+</form>
+
+<script src="{% static 'portal/js/formset_dynamic.js' %}"></script>
+<script>
+function removeForm(element) {
+    const formDiv = element.closest('.formset-form');
+    const totalFormsInput = formDiv.closest('fieldset').querySelector('input[name$="TOTAL_FORMS"]');
+    if (formDiv && totalFormsInput) {
+        formDiv.remove();
+        totalFormsInput.value = parseInt(totalFormsInput.value) - 1;
+    }
+}
+</script>
+
+</body>
+</html>

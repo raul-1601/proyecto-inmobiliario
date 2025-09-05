@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_cleanup.apps.CleanupConfig',
     'users',
     'portal',
 ]
@@ -135,8 +136,17 @@ USE_TZ = True
 
 
 STATIC_URL = '/static/'
+
+# Archivos estáticos globales
+STATICFILES_DIRS = [
+    BASE_DIR / "proyecto" / "static",
+]
+
+# Carpeta donde collectstatic recopila archivos para producción
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = BASE_DIR / "proyecto" / "media"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

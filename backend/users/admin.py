@@ -6,9 +6,14 @@ from .models import PerfilUser
 
 @admin.register(PerfilUser)
 class PerfilUserAdmin(UserAdmin):  ## hereda de User Admin 
-    fieldsets = UserAdmin.fieldsets + (
+    pass
+    
+    
+    
+    
+    """     fieldsets = UserAdmin.fieldsets + (
         ("Información extra", {"fields": ("rut", "tipo_usuario")}),
         )
     add_fieldsets = UserAdmin.add_fieldsets + (
         (None, {"fields": ("rut", "tipo_usuario")}),
-        )
+        ) """

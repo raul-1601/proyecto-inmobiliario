@@ -2,9 +2,17 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 import uuid
+from .validators import FileSizeValidator
+from django.core.exceptions import ValidationError
+from django.core.validators import FileExtensionValidator
+from django.utils.deconstruct import deconstructible
 
 
+###########################################################################
 
+                ### MODELO REGION ###
+
+###########################################################################
 class Region(models.Model):
 
     class zonas_de_chile(models.TextChoices):
@@ -17,11 +25,14 @@ class Region(models.Model):
 
     def __str__(self):
         return f"{self.id}  | Region: {self.nombre} | Zona: {self.zona}"
-    
-
-##########################################################################################################
 
 
+
+###########################################################################
+
+                ### MODELO COMUNA ###
+
+###########################################################################
 class Comuna(models.Model):
     nombre = models.CharField(max_length=50)
     region = models.ForeignKey(Region, on_delete=models.CASCADE, related_name="comunas") 
@@ -30,8 +41,17 @@ class Comuna(models.Model):
         return f"{self.nombre} | Pertenece a la región: {self.region}"
 
 
-##########################################################################################################
 
+###########################################################################
+
+                ### MODELO INMUEBLE ###
+
+###########################################################################
+
+MIN_IMAGES = 3
+MAX_IMAGES = 10
+MIN_DOCUMENTS = 1
+MAX_DOCUMENTS = 5
 
 class Inmueble(models.Model):
 
@@ -54,15 +74,74 @@ class Inmueble(models.Model):
     actualizado = models.DateTimeField(auto_now=True)
     comuna = models.ForeignKey(Comuna, on_delete=models.PROTECT)
     tipo_inmueble = models.CharField(max_length=20, choices=TipoInmueble.choices)
-    arrendado = models.BooleanField(default=True)
+    arrendado = models.BooleanField(default=False)
+
+    ## validacion de la cantidad y tamaño de imagenes y documentos
+    def clean(self):
+        if not self.pk:
+            return
+    
+        total_imagenes = self.imagenes.count()
+        total_documentos = self.documentos.count()
+
+        if total_imagenes < MIN_IMAGES:
+            raise ValidationError(f"Un inmueble debe tener al menos {MIN_IMAGES} imágenes.")
+        if total_imagenes > MAX_IMAGES:
+            raise ValidationError(f"Un inmueble no puede tener más de {MAX_IMAGES} imágenes.")
+
+        if total_documentos < MIN_DOCUMENTS:
+            raise ValidationError(f"Un inmueble debe tener al menos {MIN_DOCUMENTS} documentos.")
+        if total_documentos > MAX_DOCUMENTS:
+            raise ValidationError(f"Un inmueble no puede tener más de {MAX_DOCUMENTS} documentos.")
+
+
+
+
 
     def __str__(self):
         return f"propietario: {self.propietario} | {self.nombre}"
     
 
-##########################################################################################################
+
+###########################################################################
+
+                ### MODELO IMAGENES DEL INMUEBLE ###
+
+###########################################################################
+class InmuebleImagen(models.Model):
+    inmueble = models.ForeignKey(Inmueble, on_delete=models.CASCADE, related_name="imagenes_inmueble")
+    imagen = models.ImageField(upload_to="inmuebles/fotos/")
+    
+    def __str__(self):
+        return f"Imagen del inmueble {self.inmueble.titulo}, propiedad de {self.inmueble.propietario}"
+    
 
 
+###########################################################################
+
+                ### MODELO IMAGENES DEL INMUEBLE ###
+
+###########################################################################
+class InmuebleDocumento(models.Model):
+    inmueble = models.ForeignKey(Inmueble, on_delete=models.CASCADE, related_name="documentos_inmueble")
+    archivo = models.FileField(
+        upload_to="inmuebles/documentos/",
+        validators=[
+            FileExtensionValidator(allowed_extensions=["pdf", "doc", "docx"]),
+            FileSizeValidator(max_mb=10)
+            ]
+        )
+    
+    def __str__(self):
+        return f"Documento del inmueble {self.inmueble.titulo}, propiedad de {self.inmueble.propietario}"
+    
+
+
+###########################################################################
+
+                ### MODELO SOLICITUD DE ARRIENDO ###
+
+###########################################################################
 class SolicitudArriendo(models.Model):
 
     class EstadoSolicitud(models.TextChoices):
