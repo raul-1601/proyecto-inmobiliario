@@ -7,13 +7,12 @@
     <title>Crear Inmueble</title>
     <style>
         .remove-form {
-            cursor: pointer;      /* cambia a manito */
-            display: inline-block; /* asegura que el cursor funcione */
+            cursor: pointer;
+            display: inline-block;
             color: red;
             font-weight: bold;
             margin-left: 5px;
         }
-
     </style>
 </head>
 <body>
@@ -23,14 +22,12 @@
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
 
-    <!-- Formulario principal -->
     <fieldset>
         <legend>Datos del Inmueble</legend>
         {{ form.as_p }}
     </fieldset>
 
-    <!-- Formset de imágenes -->
-    <fieldset id="imagenes-fieldset">
+    <fieldset id="imagenes-fieldset" data-max="{{ img_formset.max_num }}">
         <legend>Imágenes</legend>
         {{ img_formset.management_form }}
         <div id="imagenes-forms">
@@ -43,8 +40,6 @@
         </div>
         <button type="button" id="add-imagen">Agregar Imagen</button>
         <p>Máximo {{ img_formset.max_num }} imágenes</p>
-
-        <!-- Template oculto para clonar -->
         <div id="imagenes-empty-form" style="display: none;">
             <div class="formset-form">
                 <input type="file" name="imagenes-__prefix__-imagen" id="id_imagenes-__prefix__-imagen">
@@ -53,8 +48,7 @@
         </div>
     </fieldset>
 
-    <!-- Formset de documentos -->
-    <fieldset id="documentos-fieldset">
+    <fieldset id="documentos-fieldset" data-max="{{ doc_formset.max_num }}">
         <legend>Documentos</legend>
         {{ doc_formset.management_form }}
         <div id="documentos-forms">
@@ -67,8 +61,6 @@
         </div>
         <button type="button" id="add-documento">Agregar Documento</button>
         <p>Máximo {{ doc_formset.max_num }} documentos</p>
-
-        <!-- Template oculto para clonar -->
         <div id="documentos-empty-form" style="display: none;">
             <div class="formset-form">
                 <input type="file" name="documentos-__prefix__-archivo" id="id_documentos-__prefix__-archivo">
@@ -81,16 +73,6 @@
 </form>
 
 <script src="{% static 'portal/js/formset_dynamic.js' %}"></script>
-<script>
-function removeForm(element) {
-    const formDiv = element.closest('.formset-form');
-    const totalFormsInput = formDiv.closest('fieldset').querySelector('input[name$="TOTAL_FORMS"]');
-    if (formDiv && totalFormsInput) {
-        formDiv.remove();
-        totalFormsInput.value = parseInt(totalFormsInput.value) - 1;
-    }
-}
-</script>
 
 </body>
 </html>

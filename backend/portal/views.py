@@ -18,63 +18,31 @@ from django.db import transaction
 
 ## CREAR INMUEBLE
 @login_required
-@login_required
 def InmuebleCreateView(request):
-    # Instanciamos un objeto temporal para asociar los formsets
-    inmueble_temp = Inmueble(propietario=request.user)
-
     if request.method == "POST":
-        # Formulario principal
         form = InmuebleForm(request.POST)
-        
-        # Formsets con prefix para identificarlos correctamente
-        img_formset = InmuebleImagenFormSet(
-            request.POST, request.FILES,
-            instance=inmueble_temp,
-            prefix='imagenes'
-        )
-        doc_formset = InmuebleDocumentoFormSet(
-            request.POST, request.FILES,
-            instance=inmueble_temp,
-            prefix='documentos'
-        )
-
+        temp = Inmueble()
+        img_formset = InmuebleImagenFormSet(request.POST, request.FILES,
+        instance=temp, prefix="imagenes")
+        doc_formset = InmuebleDocumentoFormSet(request.POST, request.FILES,
+        instance=temp, prefix="documentos")
         if form.is_valid() and img_formset.is_valid() and doc_formset.is_valid():
             with transaction.atomic():
-                # Guardamos el inmueble principal
-                inmueble = form.save(commit=False)
-                inmueble.propietario = request.user
-                inmueble.save()
-
-                # Asociamos los formsets al inmueble guardado
+                inmueble = form.save()
                 img_formset.instance = inmueble
-                img_formset.save()
-
                 doc_formset.instance = inmueble
+                img_formset.save()
                 doc_formset.save()
 
-            return redirect('my_properties')  # Cambia según tu URL de lista
-
+        return redirect("my_properties")
+    
     else:
-        # GET: instanciamos formulario vacío
         form = InmuebleForm()
+        img_formset = InmuebleImagenFormSet(instance=Inmueble(), prefix="imagenes")
+        doc_formset = InmuebleDocumentoFormSet(instance=Inmueble(),prefix="documentos")
 
-        img_formset = InmuebleImagenFormSet(
-            instance=inmueble_temp,
-            prefix='imagenes',
-            queryset=InmuebleImagen.objects.none()
-        )
-        doc_formset = InmuebleDocumentoFormSet(
-            instance=inmueble_temp,
-            prefix='documentos',
-            queryset=InmuebleDocumento.objects.none()
-        )
+    return render(request, "inmueble/inmueble_form.html", {"form": form,"img_formset": img_formset, "doc_formset": doc_formset})
 
-    return render(request, "inmueble/inmueble_form.html", {
-        "form": form,
-        "img_formset": img_formset,
-        "doc_formset": doc_formset,
-    })
 
 ## LISTAR INMUEBLES (HOME)
 class InmueblePublicListView(ListView):
