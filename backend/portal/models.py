@@ -5,7 +5,6 @@ import uuid
 from .validators import FileSizeValidator
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
-from django.utils.deconstruct import deconstructible
 
 
 ###########################################################################
@@ -27,7 +26,6 @@ class Region(models.Model):
         return f"Region: {self.nombre} | Zona: {self.zona}"
 
 
-
 ###########################################################################
 
                 ### MODELO COMUNA ###
@@ -39,7 +37,6 @@ class Comuna(models.Model):
 
     def __str__(self):
         return f"{self.nombre}"
-
 
 
 ###########################################################################
@@ -93,9 +90,6 @@ class Inmueble(models.Model):
             raise ValidationError(f"Un inmueble debe tener al menos {MIN_DOCUMENTS} documentos.")
         if total_documentos > MAX_DOCUMENTS:
             raise ValidationError(f"Un inmueble no puede tener más de {MAX_DOCUMENTS} documentos.")
-
-
-
 
 
     def __str__(self):
@@ -159,4 +153,4 @@ class SolicitudArriendo(models.Model):
 
     def __str__(self):
         return f"{self.uuid} | Persona que solicita: {self.arrendatario} | Estado solicitud: {self.estado} "
-
+                                                                                                                                                                                                                                                                                                                                                                                                           
