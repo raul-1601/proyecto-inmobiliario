@@ -2,18 +2,21 @@ from django import forms
 from .models import PerfilUser
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import authenticate
+from portal.forms import RegionComunaFormMixin
 
 
 ### FORMULARIO DE REGISTRO ###
 
-class RegisterForm(UserCreationForm):
-    email = forms.EmailField(required=True)
+class RegisterForm(RegionComunaFormMixin, UserCreationForm):
     class Meta:
         model = PerfilUser
         fields = [
             "first_name",
             "last_name",
             "email",
+            "direccion",
+            "region",
+            "comuna",
             "rut",
             "password1",
             "password2",

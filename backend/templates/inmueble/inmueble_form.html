@@ -14,6 +14,7 @@
             margin-left: 5px;
         }
     </style>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
 </head>
 <body>
 
@@ -24,7 +25,26 @@
 
     <fieldset>
         <legend>Datos del Inmueble</legend>
-        {{ form.as_p }}
+        {{ form.non_field_errors }}
+        <div class="mb-3">
+            {{ form.region.label_tag }}
+            {{ form.region }}
+            {{ form.region.errors }}
+        </div>
+        <div class="mb-3">
+            {{ form.comuna.label_tag }}
+            {{ form.comuna }}
+            {{ form.comuna.errors }}
+        </div>
+        {% for field in form %}
+            {% if field.name != "region" and field.name != "comuna" %}
+                <div class="mb-3">
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {{ field.errors }}
+                </div>
+            {% endif %}
+        {% endfor %}
     </fieldset>
 
     <fieldset id="imagenes-fieldset" data-max="{{ img_formset.max_num }}">

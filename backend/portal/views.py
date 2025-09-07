@@ -1,12 +1,15 @@
 from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
-from .models import SolicitudArriendo, Inmueble, InmuebleImagen, InmuebleDocumento, MIN_IMAGES, MIN_DOCUMENTS
+from .models import SolicitudArriendo, Inmueble, Comuna
 from django.views.generic import ListView, UpdateView, DeleteView, CreateView, DetailView  
 from .forms import InmuebleForm, SolicitudArriendoForm, InmuebleImagenFormSet, InmuebleDocumentoFormSet
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.db import transaction
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+
 
 
 ###########################################################################
@@ -95,7 +98,6 @@ class InmuebleDeleteView(LoginRequiredMixin, DeleteView):
                 ### CRUD SOLICITUD ARRIENDO ###
 
 ###########################################################################
-
 ## CREAR SOLICITUD DE ARRIENDO
 class SolicitudArriendoCreateView(LoginRequiredMixin, CreateView):
     model = SolicitudArriendo
@@ -133,3 +135,21 @@ class SolicitudArriendoDeleteView(LoginRequiredMixin, DeleteView):
 
 
 
+
+###########################################################################
+
+        ### VISTA AJAX PARA CARGAR COMUNAS EN FORMULARIOS ###
+
+###########################################################################
+from django.shortcuts import render
+from .models import Comuna
+
+def cargar_comunas_ajax(request):
+    region_id = request.GET.get("region")
+    if not region_id:
+        return render(request, "partials/comuna_option.html", {"comunas": []})
+    try:
+        comunas = Comuna.objects.filter(region_id=region_id).order_by("nombre")
+    except Exception:
+        comunas = []
+    return render(request, "partials/comuna_option.html", {"comunas": comunas})

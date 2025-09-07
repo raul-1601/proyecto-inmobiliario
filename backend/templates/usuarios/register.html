@@ -1,127 +1,62 @@
-<!-- templates/registration/register.html -->
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Registro de Usuario</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f2f5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .form-container {
-            background-color: #fff;
-            padding: 2rem 3rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            width: 400px;
-        }
-        h2 {
-            text-align: center;
-            margin-bottom: 1rem;
-        }
-        label {
-            display: block;
-            margin-top: 1rem;
-            font-weight: bold;
-        }
-        input, select {
-            width: 100%;
-            padding: 0.5rem;
-            margin-top: 0.3rem;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        .errorlist {
-            color: red;
-            font-size: 0.9rem;
-            margin-top: 0.2rem;
-        }
-        button {
-            margin-top: 1.5rem;
-            width: 100%;
-            padding: 0.7rem;
-            background-color: #007bff;
-            color: #fff;
-            font-weight: bold;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        .messages {
-            margin-bottom: 1rem;
-        }
-        .messages .success {
-            color: green;
-        }
-        .messages .error {
-            color: red;
-        }
-    </style>
-</head>
-<body>
-    <div class="form-container">
-        <h2>Registro de Usuario</h2>
+{% extends "base/base.html" %}
 
-        <!-- Mensajes de éxito o error -->
-        {% if messages %}
-            <div class="messages">
-                {% for message in messages %}
-                    <div class="{{ message.tags }}">{{ message }}</div>
-                {% endfor %}
-            </div>
-        {% endif %}
+{% block title %}Registro de Usuario{% endblock %}
 
-        <form method="post">
-            {% csrf_token %}
+{% block content %}
+<div class="form-container mx-auto" style="max-width: 500px;">
+    <h2 class="mb-3">Registro de Usuario</h2>
 
-            <label for="id_first_name">Nombre</label>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <div class="mb-3">
+            {{ form.first_name.label_tag }}
             {{ form.first_name }}
-            {% if form.first_name.errors %}
-                <div class="errorlist">{{ form.first_name.errors }}</div>
-            {% endif %}
-
-            <label for="id_last_name">Apellido</label>
+            {{ form.first_name.errors }}
+        </div>
+        <div class="mb-3">
+            {{ form.last_name.label_tag }}
             {{ form.last_name }}
-            {% if form.last_name.errors %}
-                <div class="errorlist">{{ form.last_name.errors }}</div>
-            {% endif %}
-
-            <label for="id_email">Email</label>
+            {{ form.last_name.errors }}
+        </div>
+        <div class="mb-3">
+            {{ form.email.label_tag }}
             {{ form.email }}
-            {% if form.email.errors %}
-                <div class="errorlist">{{ form.email.errors }}</div>
-            {% endif %}
-
-            <label for="id_rut">RUT</label>
+            {{ form.email.errors }}
+        </div>
+        <div class="mb-3">
+            {{ form.rut.label_tag }}
             {{ form.rut }}
-            {% if form.rut.errors %}
-                <div class="errorlist">{{ form.rut.errors }}</div>
-            {% endif %}
-
-
-            <label for="id_password1">Contraseña</label>
+            {{ form.rut.errors }}
+        </div>
+        <div class="mb-3">
+            {{ form.region.label_tag }}
+            {{ form.region }}
+            {{ form.region.errors }}
+        </div>
+        <div class="mb-3">
+            {{ form.comuna.label_tag }}
+            {{ form.comuna }}
+            {{ form.comuna.errors }}
+        </div>
+        <div class="mb-3">
+            {{ form.direccion.label_tag }}
+            {{ form.direccion }}
+            {{ form.direccion.errors }}
+        </div>
+        <div class="mb-3">
+            {{ form.password1.label_tag }}
             {{ form.password1 }}
-            {% if form.password1.errors %}
-                <div class="errorlist">{{ form.password1.errors }}</div>
-            {% endif %}
-
-            <label for="id_password2">Repetir Contraseña</label>
+            {{ form.password1.errors }}
+        </div>
+        <div class="mb-3">
+            {{ form.password2.label_tag }}
             {{ form.password2 }}
-            {% if form.password2.errors %}
-                <div class="errorlist">{{ form.password2.errors }}</div>
-            {% endif %}
+            {{ form.password2.errors }}
+        </div>
 
-            <button type="submit">Registrarse</button>
-        </form>
-    </div>
-</body>
-</html>
+        <button type="submit" class="btn btn-primary w-100">Registrarse</button>
+    </form>
+</div>
+{% endblock %}

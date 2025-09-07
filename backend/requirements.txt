@@ -3,3 +3,4 @@ psycopg2-binary
 pillow
 python-dotenv
 django-cleanup
+django-widget-tweaks

@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'django_cleanup.apps.CleanupConfig',
     'users',
     'portal',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [
