@@ -22,29 +22,39 @@ from django.shortcuts import get_object_or_404
 ## CREAR INMUEBLE
 @login_required
 def InmuebleCreateView(request):
+    """Crear un nuevo inmueble con sus imágenes y documentos."""
+    
+    instance = Inmueble(propietario=request.user)
+    
     if request.method == "POST":
-        form = InmuebleForm(request.POST)
-        temp = Inmueble()
-        img_formset = InmuebleImagenFormSet(request.POST, request.FILES,
-        instance=temp, prefix="imagenes")
-        doc_formset = InmuebleDocumentoFormSet(request.POST, request.FILES,
-        instance=temp, prefix="documentos")
+        form = InmuebleForm(request.POST, instance=instance)
+        img_formset = InmuebleImagenFormSet(request.POST, request.FILES, instance=instance, prefix="imagenes")
+        doc_formset = InmuebleDocumentoFormSet(request.POST, request.FILES, instance=instance, prefix="documentos")
+
         if form.is_valid() and img_formset.is_valid() and doc_formset.is_valid():
             with transaction.atomic():
-                inmueble = form.save()
-                img_formset.instance = inmueble
-                doc_formset.instance = inmueble
+                form.save()
                 img_formset.save()
                 doc_formset.save()
 
-        return redirect("my_properties")
-    
-    else:
-        form = InmuebleForm()
-        img_formset = InmuebleImagenFormSet(instance=Inmueble(), prefix="imagenes")
-        doc_formset = InmuebleDocumentoFormSet(instance=Inmueble(),prefix="documentos")
+            messages.success(request, "Inmueble creado correctamente.")
+            return redirect("my_properties")
+        else:
+            messages.error(request, "Corrige los errores en el formulario y vuelve a enviar.")
 
-    return render(request, "inmueble/inmueble_form.html", {"form": form,"img_formset": img_formset, "doc_formset": doc_formset})
+    else:
+        form = InmuebleForm(instance=instance)
+        img_formset = InmuebleImagenFormSet(instance=instance, prefix="imagenes")
+        doc_formset = InmuebleDocumentoFormSet(instance=instance, prefix="documentos")
+
+    # Renderiza el formulario (POST válido o GET)
+    context = {
+        "form": form,
+        "img_formset": img_formset,
+        "doc_formset": doc_formset
+    }
+    return render(request, "inmueble/inmueble_form.html", context)
+
 
 
 ## LISTAR INMUEBLES (HOME)

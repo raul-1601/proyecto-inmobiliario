@@ -1,15 +1,14 @@
 from django import forms
 from .models import SolicitudArriendo, Inmueble, InmuebleImagen, InmuebleDocumento, Region, Comuna, MIN_IMAGES, MAX_IMAGES, MIN_DOCUMENTS, MAX_DOCUMENTS
-from django.forms import inlineformset_factory
+from django.forms import inlineformset_factory, BaseInlineFormSet
 from django.urls import reverse_lazy
-
+from django.core.exceptions import ValidationError
 
 
 ###########################################################################
-
-                ### FORM SELECT REGION-COMUNA ###
-
+### FORM SELECT REGION-COMUNA ###
 ###########################################################################
+
 class RegionComunaFormMixin(forms.Form):
     region = forms.ModelChoiceField(
         queryset=Region.objects.all().order_by("nombre"),
@@ -32,24 +31,21 @@ class RegionComunaFormMixin(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        if "region" in self.data:  # si viene del POST
+        if "region" in self.data:
             try:
                 region_id = int(self.data.get("region"))
                 self.fields["comuna"].queryset = Comuna.objects.filter(region_id=region_id).order_by("nombre")
             except (ValueError, TypeError):
                 self.fields["comuna"].queryset = Comuna.objects.none()
         elif getattr(self.instance, "pk", None) and getattr(self.instance, "comuna", None):
-            # Si es edición: setear la comuna de su región
             self.fields["comuna"].queryset = Comuna.objects.filter(region=self.instance.comuna.region)
             self.fields["region"].initial = self.instance.comuna.region
 
 
-
+###########################################################################
+### FORM INMUEBLE ###
 ###########################################################################
 
-                ### FORM INMUEBLE ###
-
-###########################################################################
 class InmuebleForm(RegionComunaFormMixin, forms.ModelForm):
     class Meta:
         model = Inmueble
@@ -66,16 +62,46 @@ class InmuebleForm(RegionComunaFormMixin, forms.ModelForm):
             'comuna',            
             'precio_mensual',
             'tipo_inmueble'
-            ]
+        ]
         widgets = {
             'descripcion': forms.Textarea(attrs={
                 'class': 'form-control',
-                'rows': 2,  # más pequeño
+                'rows': 2,
                 'style': 'resize:vertical;'
             }),
-            # otros widgets...
         }
 
+
+
+###########################################################################
+# FORMSETS PERSONALIZADOS PARA VALIDACION MINIMA
+###########################################################################
+
+class ImagenBaseFormSet(BaseInlineFormSet):
+    def clean(self):
+        super().clean()
+        total_forms = sum(
+            1 for form in self.forms 
+            if form.cleaned_data and not form.cleaned_data.get('DELETE', False)
+        )
+        if total_forms < MIN_IMAGES:
+            raise ValidationError(f"Debes subir al menos {MIN_IMAGES} imágenes.")
+
+
+class DocumentoBaseFormSet(BaseInlineFormSet):
+    def clean(self):
+        super().clean()
+        total_forms = sum(
+            1 for form in self.forms 
+            if form.cleaned_data and not form.cleaned_data.get('DELETE', False)
+        )
+        if total_forms < MIN_DOCUMENTS:
+            raise ValidationError(f"Debes subir al menos {MIN_DOCUMENTS} documento que acredite que eres dueño del inmueble.")
+
+
+###########################################################################
+# FORMSETS INLINE CON VALIDACION
+###########################################################################
 
 InmuebleImagenFormSet = inlineformset_factory(
     Inmueble,
@@ -83,10 +109,7 @@ InmuebleImagenFormSet = inlineformset_factory(
     fields=["imagen"],
     extra=0,
     can_delete=True,
-    min_num=MIN_IMAGES,
-    max_num=MAX_IMAGES,
-    validate_min=True,
-    validate_max=True,
+    formset=ImagenBaseFormSet
 )
 
 InmuebleDocumentoFormSet = inlineformset_factory(
@@ -95,24 +118,14 @@ InmuebleDocumentoFormSet = inlineformset_factory(
     fields=["archivo"],
     extra=0,
     can_delete=True,
-    min_num=MIN_DOCUMENTS,
-    max_num=MAX_DOCUMENTS,
-    validate_min=True,
-    validate_max=True,
+    formset=DocumentoBaseFormSet
 )
 
-        
 
 ###########################################################################
-
-                ### FORM SOLICITUD DE ARRIENDO ###
-
+### FORM SOLICITUD DE ARRIENDO ###
 ###########################################################################
 class SolicitudArriendoForm(forms.ModelForm):
     class Meta:
         model = SolicitudArriendo
         fields = ['inmueble', 'mensaje']
-
-
-
-

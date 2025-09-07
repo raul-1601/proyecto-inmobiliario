@@ -5,6 +5,10 @@ import uuid
 from .validators import FileSizeValidator
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
+from decimal import Decimal
+
+
 
 
 ###########################################################################
@@ -49,6 +53,8 @@ MIN_IMAGES = 3
 MAX_IMAGES = 10
 MIN_DOCUMENTS = 1
 MAX_DOCUMENTS = 5
+MAX_PRECIO = 10**(10 - 1) - 0.1  # max_digits=10, decimal_places=1
+MIN_PRECIO = 0
 
 class Inmueble(models.Model):
 
@@ -66,7 +72,14 @@ class Inmueble(models.Model):
     habitaciones = models.PositiveIntegerField(default=0)
     banos = models.PositiveIntegerField(default=0)
     direccion = models.CharField(max_length=100)
-    precio_mensual = models.DecimalField(max_digits=8, decimal_places=2)
+    precio_mensual = models.DecimalField(
+        max_digits=10,
+        decimal_places=1,
+        validators=[
+            MinValueValidator(MIN_PRECIO, message="El precio mensual no puede ser negativo."),
+            MaxValueValidator(MAX_PRECIO, message=f"El precio mensual no puede superar {MAX_PRECIO:,.1f}.")
+        ]
+    )
     creado = models.DateTimeField(auto_now_add=True)
     actualizado = models.DateTimeField(auto_now=True)
     comuna = models.ForeignKey(Comuna, on_delete=models.PROTECT)
@@ -78,8 +91,8 @@ class Inmueble(models.Model):
         if not self.pk:
             return
     
-        total_imagenes = self.imagenes.count()
-        total_documentos = self.documentos.count()
+        total_imagenes = self.imagenes_inmueble.count()
+        total_documentos = self.documentos_inmueble.count()
 
         if total_imagenes < MIN_IMAGES:
             raise ValidationError(f"Un inmueble debe tener al menos {MIN_IMAGES} imágenes.")
@@ -107,7 +120,7 @@ class InmuebleImagen(models.Model):
     imagen = models.ImageField(upload_to="inmuebles/fotos/")
     
     def __str__(self):
-        return f"Imagen del inmueble {self.inmueble.titulo}, propiedad de {self.inmueble.propietario}"
+        return f"Imagen del inmueble {self.inmueble.nombre}, propiedad de {self.inmueble.propietario}"
     
 
 
@@ -127,7 +140,7 @@ class InmuebleDocumento(models.Model):
         )
     
     def __str__(self):
-        return f"Documento del inmueble {self.inmueble.titulo}, propiedad de {self.inmueble.propietario}"
+        return f"Documento del inmueble {self.inmueble.nombre}, propiedad de {self.inmueble.propietario}"
     
 
 

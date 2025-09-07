@@ -1,56 +1,59 @@
-<!-- templates/portal/landing.html -->
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Landing Page</title>
-    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f2f5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .container {
-            text-align: center;
-            background-color: #fff;
-            padding: 3rem 4rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        h1 {
-            margin-bottom: 2rem;
-        }
-        p {
-            margin-bottom: 2rem;
-            font-size: 1.1rem;
-            color: #333;
-        }
-        .button {
-            display: inline-block;
-            margin: 0.5rem 1rem;
-            padding: 0.8rem 2rem;
-            background-color: #007bff;
-            color: #fff;
-            font-weight: bold;
-            text-decoration: none;
-            border-radius: 5px;
-            transition: background-color 0.2s;
-        }
-        .button:hover {
-            background-color: #0056b3;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Bienvenido a la plataforma</h1>
-        <p>Elige cómo deseas ingresar:</p>
-        <a class="button" href="{% url 'inmueble_create' %}">Crear Inmueble</a>
-    </div>
-</body>
-</html>
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="hero">
+  <div class="hero-text">
+    <h1>Bienvenido a nuestro portal</h1>
+    <p>Explora nuestros servicios y descubre lo que tenemos para ti.</p>
+    <a href="" class="btn-primary">Ir a la Tienda</a>
+  </div>
+</div>
+
+<!-- Botones de usuario -->
+<div class="buttons">
+  {% if user.is_authenticated %}
+    <p>Bienvenido, <strong>{{ user.username }}</strong></p>
+    <form method="post" action="{% url 'logout' %}">
+      {% csrf_token %}
+      <button type="submit" class="btn">Cerrar sesión</button>
+    </form>
+  {% else %}
+    <a href="{% url 'register' %}" class="btn">Registrarse</a>
+    <a href="{% url 'login' %}" class="btn">Iniciar sesión</a>
+  {% endif %}
+</div>
+
+<div class="features">
+  <div class="feature-card">
+    <h2>Calidad</h2>
+    <p>Ofrecemos los mejores productos seleccionados para ti.</p>
+  </div>
+  <div class="feature-card">
+    <h2>Seguridad</h2>
+    <p>Compra con confianza con nuestros métodos de pago seguros.</p>
+  </div>
+  <div class="feature-card">
+    <h2>Soporte</h2>
+    <p>Nuestro equipo está disponible para ayudarte en todo momento.</p>
+  </div>
+</div>
+
+<!-- Grid de inmuebles -->
+{% if inmuebles %}
+  <div class="grid-container">
+    {% for inmueble in inmuebles %}
+      <div class="card">
+        {% if inmueble.imagenes_inmueble.first %}
+          <img src="{{ inmueble.imagenes_inmueble.first.imagen.url }}" alt="Imagen de {{ inmueble.nombre }}">
+        {% endif %}
+        <h3>{{ inmueble.nombre }}</h3>
+        <p>{{ inmueble.descripcion|truncatechars:100 }}</p>
+        <a href="{% url 'inmueble_detail' inmueble.id %}">Ver más</a>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <p style="text-align:center;">No hay inmuebles disponibles.</p>
+{% endif %}
+{% endblock %}
