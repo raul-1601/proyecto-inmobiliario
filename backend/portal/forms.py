@@ -67,13 +67,21 @@ class InmuebleForm(RegionComunaFormMixin, forms.ModelForm):
             'precio_mensual',
             'tipo_inmueble'
             ]
+        widgets = {
+            'descripcion': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 2,  # más pequeño
+                'style': 'resize:vertical;'
+            }),
+            # otros widgets...
+        }
 
 
 InmuebleImagenFormSet = inlineformset_factory(
     Inmueble,
     InmuebleImagen,
     fields=["imagen"],
-    extra=1,
+    extra=0,
     can_delete=True,
     min_num=MIN_IMAGES,
     max_num=MAX_IMAGES,
@@ -85,7 +93,7 @@ InmuebleDocumentoFormSet = inlineformset_factory(
     Inmueble,
     InmuebleDocumento,
     fields=["archivo"],
-    extra=1,
+    extra=0,
     can_delete=True,
     min_num=MIN_DOCUMENTS,
     max_num=MAX_DOCUMENTS,

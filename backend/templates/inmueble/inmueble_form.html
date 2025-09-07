@@ -1,98 +1,132 @@
+{% extends "base/base.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crear Inmueble</title>
-    <style>
-        .remove-form {
-            cursor: pointer;
-            display: inline-block;
-            color: red;
-            font-weight: bold;
-            margin-left: 5px;
-        }
-    </style>
-    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
-</head>
-<body>
+{% load widget_tweaks %}
 
-<h1>Crear Inmueble</h1>
+{% block title %}Crear Inmueble{% endblock %}
 
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'portal/css/inmueble.css' %}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+{% endblock %}
 
-    <fieldset>
-        <legend>Datos del Inmueble</legend>
-        {{ form.non_field_errors }}
-        <div class="mb-3">
-            {{ form.region.label_tag }}
-            {{ form.region }}
-            {{ form.region.errors }}
-        </div>
-        <div class="mb-3">
-            {{ form.comuna.label_tag }}
-            {{ form.comuna }}
-            {{ form.comuna.errors }}
-        </div>
-        {% for field in form %}
-            {% if field.name != "region" and field.name != "comuna" %}
-                <div class="mb-3">
-                    {{ field.label_tag }}
-                    {{ field }}
-                    {{ field.errors }}
+{% block content %}
+<div class="container inmueble-form-container shadow-lg">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <h1 class="mb-4 text-center">Crear Inmueble</h1>
+
+            <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                {% csrf_token %}
+
+                <fieldset class="mb-4 p-3 bg-white rounded-3 border">
+                    <legend class="mb-3">Datos del Inmueble</legend>
+                    {{ form.non_field_errors }}
+                    {% for field in form %}
+                        <div class="mb-3 {% if field.errors %}has-error{% endif %}">
+                            {{ field.label_tag }}
+                            {% if field.name == "descripcion" %}
+                                {{ field|add_class:"form-control form-control-lg" }}
+                            {% else %}
+                                {{ field|add_class:"form-control" }}
+                            {% endif %}
+                            {% if field.help_text %}
+                                <div class="form-text">{{ field.help_text }}</div>
+                            {% endif %}
+                            {{ field.errors }}
+                        </div>
+                    {% endfor %}
+                </fieldset>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header bg-primary text-white">
+                                <strong>Imágenes</strong>
+                            </div>
+                            <div class="card-body">
+                                <fieldset id="imagenes-fieldset" data-max="{{ img_formset.max_num }}">
+                                    {{ img_formset.management_form }}
+                                    <div id="imagenes-forms">
+                                        {% for form in img_formset %}
+                                            <div class="formset-form mb-2 d-flex align-items-center">
+                                                {{ form.imagen|add_class:"form-control" }}
+                                                {% if form.DELETE %}
+                                                    <button type="button" class="remove-form ms-2" onclick="removeForm(this)" title="Eliminar imagen">✖</button>
+                                                    <span style="display:none;">{{ form.DELETE }}</span>
+                                                {% endif %}
+                                                {% for hidden in form.hidden_fields %}
+                                                    {{ hidden }}
+                                                {% endfor %}
+                                                {% for error in form.non_field_errors %}
+                                                    <div class="text-danger ms-2">{{ error }}</div>
+                                                {% endfor %}
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                    <button type="button" id="add-imagen" class="btn btn-outline-primary btn-sm mt-2">
+                                        <i class="bi bi-plus-circle"></i> Agregar Imagen
+                                    </button>
+                                    <p class="text-muted mt-2">Máximo {{ img_formset.max_num }} imágenes</p>
+                                    <div id="imagenes-empty-form" style="display: none;">
+                                        <div class="formset-form mb-2 d-flex align-items-center">
+                                            <input type="file" name="imagenes-__prefix__-imagen" id="id_imagenes-__prefix__-imagen" class="form-control">
+                                            <span class="remove-form ms-2" onclick="removeForm(this)" title="Eliminar imagen">✖</span>
+                                            <input type="checkbox" name="imagenes-__prefix__-DELETE" style="display:none;">
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header bg-success text-white">
+                                <strong>Documentos</strong>
+                            </div>
+                            <div class="card-body">
+                                <fieldset id="documentos-fieldset" data-max="{{ doc_formset.max_num }}">
+                                    {{ doc_formset.management_form }}
+                                    <div id="documentos-forms">
+                                        {% for form in doc_formset %}
+                                            <div class="formset-form mb-2 d-flex align-items-center">
+                                                {{ form.archivo|add_class:"form-control" }}
+                                                {% if form.DELETE %}
+                                                    <button type="button" class="remove-form ms-2" onclick="removeForm(this)" title="Eliminar documento">✖</button>
+                                                    <span style="display:none;">{{ form.DELETE }}</span>
+                                                {% endif %}
+                                                {% for hidden in form.hidden_fields %}
+                                                    {{ hidden }}
+                                                {% endfor %}
+                                                {% for error in form.non_field_errors %}
+                                                    <div class="text-danger ms-2">{{ error }}</div>
+                                                {% endfor %}
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                    <button type="button" id="add-documento" class="btn btn-outline-success btn-sm mt-2">
+                                        <i class="bi bi-plus-circle"></i> Agregar Documento
+                                    </button>
+                                    <p class="text-muted mt-2">Máximo {{ doc_formset.max_num }} documentos</p>
+                                    <div id="documentos-empty-form" style="display: none;">
+                                        <div class="formset-form mb-2 d-flex align-items-center">
+                                            <input type="file" name="documentos-__prefix__-archivo" id="id_documentos-__prefix__-archivo" class="form-control">
+                                            <span class="remove-form ms-2" onclick="removeForm(this)" title="Eliminar documento">✖</span>
+                                            <input type="checkbox" name="documentos-__prefix__-DELETE" style="display:none;">
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            {% endif %}
-        {% endfor %}
-    </fieldset>
 
-    <fieldset id="imagenes-fieldset" data-max="{{ img_formset.max_num }}">
-        <legend>Imágenes</legend>
-        {{ img_formset.management_form }}
-        <div id="imagenes-forms">
-            {% for form in img_formset %}
-                <div class="formset-form">
-                    {{ form.imagen }}
-                    <span class="remove-form" onclick="removeForm(this)">✖</span>
-                </div>
-            {% endfor %}
+                <button type="submit" class="btn btn-success w-100 py-2 fs-5">Guardar</button>
+            </form>
         </div>
-        <button type="button" id="add-imagen">Agregar Imagen</button>
-        <p>Máximo {{ img_formset.max_num }} imágenes</p>
-        <div id="imagenes-empty-form" style="display: none;">
-            <div class="formset-form">
-                <input type="file" name="imagenes-__prefix__-imagen" id="id_imagenes-__prefix__-imagen">
-                <span class="remove-form" onclick="removeForm(this)">✖</span>
-            </div>
-        </div>
-    </fieldset>
+    </div>
+</div>
+{% endblock %}
 
-    <fieldset id="documentos-fieldset" data-max="{{ doc_formset.max_num }}">
-        <legend>Documentos</legend>
-        {{ doc_formset.management_form }}
-        <div id="documentos-forms">
-            {% for form in doc_formset %}
-                <div class="formset-form">
-                    {{ form.archivo }}
-                    <span class="remove-form" onclick="removeForm(this)">✖</span>
-                </div>
-            {% endfor %}
-        </div>
-        <button type="button" id="add-documento">Agregar Documento</button>
-        <p>Máximo {{ doc_formset.max_num }} documentos</p>
-        <div id="documentos-empty-form" style="display: none;">
-            <div class="formset-form">
-                <input type="file" name="documentos-__prefix__-archivo" id="id_documentos-__prefix__-archivo">
-                <span class="remove-form" onclick="removeForm(this)">✖</span>
-            </div>
-        </div>
-    </fieldset>
-
-    <button type="submit">Guardar</button>
-</form>
-
+{% block extra_js %}
 <script src="{% static 'portal/js/formset_dynamic.js' %}"></script>
-
-</body>
-</html>
+{% endblock %}
