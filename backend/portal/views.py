@@ -1,14 +1,12 @@
 from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
-from .models import SolicitudArriendo, Inmueble, Comuna
+from .models import *
 from django.views.generic import ListView, UpdateView, DeleteView, CreateView, DetailView  
-from .forms import InmuebleForm, SolicitudArriendoForm, InmuebleImagenFormSet, InmuebleDocumentoFormSet
-from django.urls import reverse_lazy
+from .forms import *
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.db import transaction
-from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
+
 
 
 
@@ -78,7 +76,7 @@ class MisInmueblesListView(LoginRequiredMixin, ListView):
 ## VISTA DE DETALLE DE INMUEBLE 
 class InmuebleDetailView(DetailView):
     model = Inmueble
-    template_name = 'web/detail.html'
+    template_name = 'inmueble/detail.html'
 
 
 ## ACTUALIZAR DATOS INMUEBLE
@@ -109,23 +107,57 @@ class InmuebleDeleteView(LoginRequiredMixin, DeleteView):
 
 ###########################################################################
 ## CREAR SOLICITUD DE ARRIENDO
-class SolicitudArriendoCreateView(LoginRequiredMixin, CreateView):
-    model = SolicitudArriendo
-    form_class = SolicitudArriendoForm
-    template_name = 'solicitud/solicitud_form.html'
-    success_url = reverse_lazy('solicitud_list')
+@login_required
+def SolicitudArriendoCreateView(request, inmueble_id):
+    """Crear una solicitud de arriendo con sus documentos."""
+    instance = SolicitudArriendo(arrendatario=request.user, inmueble_id=inmueble_id)
 
-    def form_valid(self, form):
-        form.instance.arrendatario = self.request.user
-        messages.success(self.request, "Solicitud creada correctamente.")
-        return super().form_valid(form)
+    if request.method == "POST":
+        form = SolicitudArriendoForm(request.POST, instance=instance)
+        doc_formset = SolicitudDocumentoFormSet(
+            request.POST, request.FILES, instance=instance, prefix="documentos"
+        )
 
+        if form.is_valid() and doc_formset.is_valid():
+            with transaction.atomic():
+                form.save()
+                doc_formset.save()
+            messages.success(request, "Solicitud creada correctamente.")
+            return redirect("solicitud_list")
+        else:
+            messages.error(request, "Corrige los errores en el formulario y vuelve a enviar.")
+    else:
+        form = SolicitudArriendoForm(instance=instance)
+        doc_formset = SolicitudDocumentoFormSet(instance=instance, prefix="documentos")
+
+    context = {
+        "form": form,
+        "doc_formset": doc_formset,
+        "inmueble": instance.inmueble
+    }
+    return render(request, "solicitud/solicitud_form.html", context)
+
+            
 
 ## LISTAR SOLICITUDES DE ARRIENDO (SECCION "MI PERFIL")
-class SolicitudArriendoListView(LoginRequiredMixin, ListView):
+class SolicitudesArrendatarioListView(LoginRequiredMixin, ListView):
     model = SolicitudArriendo
-    template_name = 'solicitud/solicitud_list.html'
+    template_name = 'solicitud/solicitudes_arrendatario.html'
     context_object_name = 'solicitudes'
+
+    def get_queryset(self):
+        return SolicitudArriendo.objects.filter(arrendatario=self.request.user)
+
+## LISTAR SOLICITUDES DE ARRIENDO vista del propietario (SECCION "MI PERFIL")
+class SolicitudesArrendadorListView(LoginRequiredMixin, ListView):
+    model = SolicitudArriendo
+    template_name = 'solicitud/solicitudes_arrendador.html'
+    context_object_name = 'solicitudes'
+    ordering = ['-creado']
+
+    def get_queryset(self):
+        return SolicitudArriendo.objects.filter(inmueble__propietario=self.request.user).order_by('inmueble__id', 'creado')
+
 
 
 ## ACTUALIZAR SOLICITUD DE ARRIENDO
@@ -135,6 +167,8 @@ class SolicitudArriendoUpdateView(LoginRequiredMixin, UpdateView):
     template_name = 'solicitud/solicitud_form.html'
     success_url = reverse_lazy('solicitud_list')
 
+    def get_queryset(self):
+        return SolicitudArriendo.objects.filter(arrendatario=self.request.user)
 
 ## ELIMINAR SOLICITUD DE ARRIENDO
 class SolicitudArriendoDeleteView(LoginRequiredMixin, DeleteView):
@@ -142,7 +176,8 @@ class SolicitudArriendoDeleteView(LoginRequiredMixin, DeleteView):
     template_name = 'solicitud/solicitud_confirm_delete.html'
     success_url = reverse_lazy('solicitud_list')
 
-
+    def get_queryset(self):
+        return SolicitudArriendo.objects.filter(arrendatario=self.request.user)
 
 
 

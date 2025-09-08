@@ -5,187 +5,130 @@
 {% block title %}Crear Inmueble{% endblock %}
 
 {% block extra_head %}
-<!-- CSS personalizado para este formulario -->
 <link rel="stylesheet" href="{% static 'portal/css/inmueble.css' %}">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 {% endblock %}
 
 {% block content %}
-<div class="container my-5">
+<div class="container inmueble-form-container shadow-lg py-4 px-3 px-md-5">
     <div class="row justify-content-center">
-        <!-- Columna principal del formulario centrada -->
-        <div class="col-12 col-lg-11 col-xl-10">
-            <div class="inmueble-form-container">
-                <!-- Título principal del formulario -->
-                <h1 class="form-title"><i class="bi bi-building me-2"></i>Crear Inmueble</h1>
-                
-                <!-- Formulario principal -->
-                <form method="post" enctype="multipart/form-data" novalidate>
-                    {% csrf_token %}
+        <div class="col-12 col-xl-10">
+            <h1 class="mb-4 text-center fw-bold text-primary">Crear Inmueble</h1>
 
-                    <!-- ==========================
-                         Fieldset: Datos del inmueble
-                         Contiene los campos básicos del inmueble
-                    ========================== -->
-                    <fieldset class="form-section">
-                        <legend><i class="bi bi-info-circle me-1"></i> Datos del Inmueble</legend>
-                        {{ form.non_field_errors }}
+            <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                {% csrf_token %}
 
-                        <!-- Itera sobre cada campo del formulario Django -->
-                        {% for field in form %}
-                            <div class="form-group {% if field.errors %}has-error{% endif %}">
-                                <!-- Label del campo -->
-                                {{ field.label_tag }}
-                                <!-- Campo input/textarea -->
-                                {% if field.name == "descripcion" %}
-                                    {{ field|add_class:"form-control form-control-sm" }}
-                                {% else %}
-                                    {{ field|add_class:"form-control" }}
-                                {% endif %}
-                                <!-- Texto de ayuda -->
-                                {% if field.help_text %}
-                                    <small class="form-text text-muted">{{ field.help_text }}</small>
-                                {% endif %}
-                                <!-- Errores específicos del campo -->
-                                {{ field.errors }}
-                            </div>
-                        {% endfor %}
-                    </fieldset>
-
-                    <!-- ==========================
-                         Sección de Imágenes y Documentos
-                         Formsets dinámicos: JS interactúa con estos divs
-                    ========================== -->
-                    <div class="row g-4">
-                        <!-- ======================================
-                             Columna: Formset de Imágenes
-                             ====================================== -->
-                        <div class="col-12 col-md-6">
-                            <div class="card form-card h-100">
-                                <div class="card-header bg-primary text-white">
-                                    <i class="bi bi-images me-2"></i> Imágenes del inmueble
-                                </div>
-                                <div class="card-body">
-                                    <!-- Mostrar errores de validación del formset -->
-                                    {% if img_formset.non_form_errors %}
-                                        <div class="alert alert-danger">
-                                            {% for error in img_formset.non_form_errors %}
-                                                <div>{{ error }}</div>
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
-
-                                    <!-- Fieldset contenedor de todas las imágenes -->
-                                    <fieldset id="imagenes-fieldset" data-max="{{ img_formset.max_num }}">
-                                        {{ img_formset.management_form }}
-                                        <div id="imagenes-forms">
-                                            {% for form in img_formset %}
-                                                <div class="formset-form">
-                                                    {{ form.imagen|add_class:"form-control" }}
-                                                    {% if form.DELETE %}
-                                                        <button type="button" class="remove-form" onclick="removeForm(this)" title="Eliminar">✖</button>
-                                                        <span style="display:none;">{{ form.DELETE }}</span>
-                                                    {% endif %}
-                                                    {% for hidden in form.hidden_fields %}
-                                                        {{ hidden }}
-                                                    {% endfor %}
-                                                    {{ form.non_field_errors }}
-                                                </div>
-                                            {% endfor %}
-                                        </div>
-
-                                        <!-- Botón para agregar una nueva imagen -->
-                                        <button type="button" id="add-imagen" class="btn btn-outline-primary btn-sm mt-2">
-                                            <i class="bi bi-plus-circle"></i> Agregar Imagen
-                                        </button>
-                                        <p class="text-muted small mt-2">Mínimo {{ img_formset.forms|length }} imágenes</p>
-
-                                        <!-- Template invisible: JS clona esto para añadir nuevas imágenes -->
-                                        <div id="imagenes-empty-form" style="display:none;">
-                                            <div class="formset-form">
-                                                <input type="file" name="imagenes-__prefix__-imagen" id="id_imagenes-__prefix__-imagen" class="form-control">
-                                                <button type="button" class="remove-form" onclick="removeForm(this)">✖</button>
-                                                <input type="checkbox" name="imagenes-__prefix__-DELETE" style="display:none;">
-                                            </div>
-                                        </div>
-                                    </fieldset>
-                                </div>
-                            </div>
+                <fieldset class="mb-4 p-4 bg-white rounded-4 border border-2">
+                    <legend class="mb-3 fs-5 text-secondary">Datos del Inmueble</legend>
+                    {{ form.non_field_errors }}
+                    {% for field in form %}
+                        <div class="mb-3 {% if field.errors %}has-error{% endif %}">
+                            {{ field.label_tag }}
+                            {% if field.name == "descripcion" %}
+                                {{ field|add_class:"form-control form-control-sm" }}
+                            {% else %}
+                                {{ field|add_class:"form-control" }}
+                            {% endif %}
+                            {% if field.help_text %}
+                                <div class="form-text">{{ field.help_text }}</div>
+                            {% endif %}
+                            {{ field.errors }}
                         </div>
+                    {% endfor %}
+                </fieldset>
 
-                        <!-- ======================================
-                             Columna: Formset de Documentos
-                             ====================================== -->
-                        <div class="col-12 col-md-6">
-                            <div class="card form-card h-100">
-                                <div class="card-header bg-success text-white">
-                                    <i class="bi bi-file-earmark-text me-2"></i> Documentos de acreditación de propiedad
-                                </div>
-                                <div class="card-body">
-                                    <!-- Mostrar errores de validación del formset -->
-                                    {% if doc_formset.non_form_errors %}
-                                        <div class="alert alert-danger">
-                                            {% for error in doc_formset.non_form_errors %}
-                                                <div>{{ error }}</div>
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
-
-                                    <!-- Fieldset contenedor de todos los documentos -->
-                                    <fieldset id="documentos-fieldset" data-max="{{ doc_formset.max_num }}">
-                                        {{ doc_formset.management_form }}
-                                        <div id="documentos-forms">
-                                            {% for form in doc_formset %}
-                                                <div class="formset-form">
-                                                    {{ form.archivo|add_class:"form-control" }}
-                                                    {% if form.DELETE %}
-                                                        <button type="button" class="remove-form" onclick="removeForm(this)" title="Eliminar">✖</button>
-                                                        <span style="display:none;">{{ form.DELETE }}</span>
-                                                    {% endif %}
-                                                    {% for hidden in form.hidden_fields %}
-                                                        {{ hidden }}
-                                                    {% endfor %}
-                                                    {{ form.non_field_errors }}
-                                                </div>
-                                            {% endfor %}
-                                        </div>
-
-                                        <!-- Botón para agregar un nuevo documento -->
-                                        <button type="button" id="add-documento" class="btn btn-outline-success btn-sm mt-2">
-                                            <i class="bi bi-plus-circle"></i> Agregar Documento
-                                        </button>
-                                        <p class="text-muted small mt-2">Mínimo {{ doc_formset.forms|length }} documento</p>
-
-                                        <!-- Template invisible: JS clona esto para añadir nuevos documentos -->
-                                        <div id="documentos-empty-form" style="display:none;">
-                                            <div class="formset-form">
-                                                <input type="file" name="documentos-__prefix__-archivo" id="id_documentos-__prefix__-archivo" class="form-control">
-                                                <button type="button" class="remove-form" onclick="removeForm(this)">✖</button>
-                                                <input type="checkbox" name="documentos-__prefix__-DELETE" style="display:none;">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-header bg-gradient bg-primary text-white rounded-top-3">
+                                <strong><i class="bi bi-images"></i> Imágenes</strong>
+                            </div>
+                            <div class="card-body">
+                                <fieldset id="imagenes-fieldset" data-max="{{ img_formset.max_num }}">
+                                    {{ img_formset.management_form }}
+                                    <div id="imagenes-forms">
+                                        {% for form in img_formset %}
+                                            <div class="formset-form mb-2 d-flex align-items-center">
+                                                {{ form.imagen|add_class:"form-control" }}
+                                                {% if form.DELETE %}
+                                                    <button type="button" class="remove-form ms-2" onclick="removeForm(this)" title="Eliminar imagen">✖</button>
+                                                    <span style="display:none;">{{ form.DELETE }}</span>
+                                                {% endif %}
+                                                {% for hidden in form.hidden_fields %}
+                                                    {{ hidden }}
+                                                {% endfor %}
+                                                {% for error in form.non_field_errors %}
+                                                    <div class="text-danger ms-2">{{ error }}</div>
+                                                {% endfor %}
                                             </div>
+                                        {% endfor %}
+                                    </div>
+                                    <button type="button" id="add-imagen" class="btn btn-outline-primary btn-sm mt-2">
+                                        <i class="bi bi-plus-circle"></i> Agregar Imagen
+                                    </button>
+                                    <p class="text-muted mt-2 mb-0">Máximo {{ img_formset.max_num }} imágenes</p>
+                                    <div id="imagenes-empty-form" style="display: none;">
+                                        <div class="formset-form mb-2 d-flex align-items-center">
+                                            <input type="file" name="imagenes-__prefix__-imagen" id="id_imagenes-__prefix__-imagen" class="form-control">
+                                            <button type="button" class="remove-form ms-2" onclick="removeForm(this)" title="Eliminar imagen">✖</button>
+                                            <input type="checkbox" name="imagenes-__prefix__-DELETE" style="display:none;">
                                         </div>
-                                    </fieldset>
-                                </div>
+                                    </div>
+                                </fieldset>
                             </div>
                         </div>
                     </div>
-
-                    <!-- ==========================
-                         Botón principal para guardar
-                    ========================== -->
-                    <div class="form-footer">
-                        <button type="submit" class="btn btn-primary btn-lg w-100">
-                            <i class="bi bi-check-circle me-2"></i> Guardar
-                        </button>
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-header bg-gradient bg-success text-white rounded-top-3">
+                                <strong><i class="bi bi-file-earmark-text"></i> Documentos</strong>
+                            </div>
+                            <div class="card-body">
+                                <fieldset id="documentos-fieldset" data-max="{{ doc_formset.max_num }}">
+                                    {{ doc_formset.management_form }}
+                                    <div id="documentos-forms">
+                                        {% for form in doc_formset %}
+                                            <div class="formset-form mb-2 d-flex align-items-center">
+                                                {{ form.archivo|add_class:"form-control" }}
+                                                {% if form.DELETE %}
+                                                    <button type="button" class="remove-form ms-2" onclick="removeForm(this)" title="Eliminar documento">✖</button>
+                                                    <span style="display:none;">{{ form.DELETE }}</span>
+                                                {% endif %}
+                                                {% for hidden in form.hidden_fields %}
+                                                    {{ hidden }}
+                                                {% endfor %}
+                                                {% for error in form.non_field_errors %}
+                                                    <div class="text-danger ms-2">{{ error }}</div>
+                                                {% endfor %}
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                    <button type="button" id="add-documento" class="btn btn-outline-success btn-sm mt-2">
+                                        <i class="bi bi-plus-circle"></i> Agregar Documento
+                                    </button>
+                                    <p class="text-muted mt-2 mb-0">Máximo {{ doc_formset.max_num }} documentos</p>
+                                    <div id="documentos-empty-form" style="display: none;">
+                                        <div class="formset-form mb-2 d-flex align-items-center">
+                                            <input type="file" name="documentos-__prefix__-archivo" id="id_documentos-__prefix__-archivo" class="form-control">
+                                            <button type="button" class="remove-form ms-2" onclick="removeForm(this)" title="Eliminar documento">✖</button>
+                                            <input type="checkbox" name="documentos-__prefix__-DELETE" style="display:none;">
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
                     </div>
-                </form>
-            </div>
+                </div>
+
+                <div class="mt-5 mb-5">
+                    <button type="submit" class="btn btn-success w-100 py-2 fs-5 shadow-sm">Guardar</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
-<!-- JS dinámico para agregar/eliminar imágenes y documentos -->
 <script src="{% static 'portal/js/formset_dynamic.js' %}"></script>
 {% endblock %}

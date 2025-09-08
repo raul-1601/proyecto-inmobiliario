@@ -1,62 +1,89 @@
 {% extends "base/base.html" %}
+{% load static %}
+{% load widget_tweaks %}
 
 {% block title %}Registro de Usuario{% endblock %}
 
+
 {% block content %}
 <div class="form-container mx-auto" style="max-width: 500px;">
-    <h2 class="mb-3">Registro de Usuario</h2>
+    <h2 class="mb-4 text-center">Registro de Usuario</h2>
 
-    <form method="post">
+    <form method="post" novalidate>
         {% csrf_token %}
         {{ form.non_field_errors }}
 
         <div class="mb-3">
             {{ form.first_name.label_tag }}
-            {{ form.first_name }}
+            {{ form.first_name|add_class:"form-control" }}
             {{ form.first_name.errors }}
         </div>
+
         <div class="mb-3">
             {{ form.last_name.label_tag }}
-            {{ form.last_name }}
+            {{ form.last_name|add_class:"form-control" }}
             {{ form.last_name.errors }}
         </div>
+
         <div class="mb-3">
             {{ form.email.label_tag }}
-            {{ form.email }}
+            {{ form.email|add_class:"form-control" }}
             {{ form.email.errors }}
         </div>
+
         <div class="mb-3">
             {{ form.rut.label_tag }}
-            {{ form.rut }}
+            {{ form.rut|add_class:"form-control" }}
             {{ form.rut.errors }}
         </div>
+
         <div class="mb-3">
             {{ form.region.label_tag }}
-            {{ form.region }}
+            {{ form.region|add_class:"form-select" }}
             {{ form.region.errors }}
         </div>
+
         <div class="mb-3">
             {{ form.comuna.label_tag }}
-            {{ form.comuna }}
+            {{ form.comuna|add_class:"form-select" }}
             {{ form.comuna.errors }}
         </div>
+
         <div class="mb-3">
             {{ form.direccion.label_tag }}
-            {{ form.direccion }}
+            {{ form.direccion|add_class:"form-control" }}
             {{ form.direccion.errors }}
         </div>
+
+        <div class="mb-3">
+            <label class="form-label">
+                Tipo de usuario
+                <i class="bi bi-info-circle ms-1 text-primary" 
+                   data-bs-toggle="tooltip" 
+                   data-bs-placement="right" 
+                   title="Si eres arrendador, podrás publicar propiedades. Si eres arrendatario, podrás buscar y arrendar propiedades."></i>
+            </label>
+            {{ form.tipo_usuario|add_class:"form-select" }}
+            {{ form.tipo_usuario.errors }}
+        </div>
+
         <div class="mb-3">
             {{ form.password1.label_tag }}
-            {{ form.password1 }}
+            {{ form.password1|add_class:"form-control" }}
             {{ form.password1.errors }}
         </div>
+
         <div class="mb-3">
             {{ form.password2.label_tag }}
-            {{ form.password2 }}
+            {{ form.password2|add_class:"form-control" }}
             {{ form.password2.errors }}
         </div>
 
         <button type="submit" class="btn btn-primary w-100">Registrarse</button>
     </form>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'portal/js/register_tooltip.js' %}"></script>
 {% endblock %}

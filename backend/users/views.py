@@ -30,10 +30,11 @@ def register_view(request):
 
 def login_view(request):
     form = LoginForm(request, data=request.POST or None)
+
     if request.method == "POST" and form.is_valid():
         user = form.get_user()
         login(request, user)
-        messages.success(request, "Has iniciado sesión.")
+        messages.success(request, f"Bienvenido, {user.first_name or user.username}")
         return redirect("home")
 
     return render(request, "usuarios/login.html", {"form": form})
@@ -45,3 +46,7 @@ def logout_view(request):
     logout(request)
     messages.success(request, "Has cerrado sesión correctamente.")
     return redirect("home")
+
+
+def profile_view(request):
+    return render(request, "profile/profile.html")

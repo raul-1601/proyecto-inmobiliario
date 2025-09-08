@@ -126,7 +126,7 @@ class InmuebleImagen(models.Model):
 
 ###########################################################################
 
-                ### MODELO IMAGENES DEL INMUEBLE ###
+                ### MODELO DOCUMENTOS DEL INMUEBLE ###
 
 ###########################################################################
 class InmuebleDocumento(models.Model):
@@ -144,26 +144,65 @@ class InmuebleDocumento(models.Model):
     
 
 
+from django.db import models
+from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.core.validators import FileExtensionValidator
+from .validators import FileSizeValidator
+import uuid
+
+MIN_DOCUMENTS_SOLI = 3
+MAX_DOCUMENTS_SOLI = 5
+
 ###########################################################################
-
-                ### MODELO SOLICITUD DE ARRIENDO ###
-
+### MODELO SOLICITUD DE ARRIENDO ###
 ###########################################################################
 class SolicitudArriendo(models.Model):
 
     class EstadoSolicitud(models.TextChoices):
-        pendiente = "PENDIENTE", _("Pendiente ⏳")
-        aprobada = "APROBADA", _("Aprobada ✔️")
-        rechazada = "RECHAZADA", _("Rechazada ❌")
+        pendiente = "PENDIENTE", "Pendiente ⏳"
+        aprobada = "APROBADA", "Aprobada ✔️"
+        rechazada = "RECHAZADA", "Rechazada ❌"
 
     uuid = models.UUIDField(default=uuid.uuid4, editable=False)
-    inmueble = models.ForeignKey(Inmueble, on_delete=models.CASCADE, related_name="solicitudes")
+    inmueble = models.ForeignKey(
+        "Inmueble", on_delete=models.CASCADE, related_name="solicitudes"
+    )
     mensaje = models.TextField()
-    arrendatario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='solicitudes_enviadas')
+    arrendatario = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='solicitudes_enviadas'
+    )
     estado = models.CharField(max_length=20, choices=EstadoSolicitud.choices, default=EstadoSolicitud.pendiente)
     creado = models.DateTimeField(auto_now_add=True)
     actualizado = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.uuid} | Persona que solicita: {self.arrendatario} | Estado solicitud: {self.estado} "
-                                                                                                                                                                                                                                                                                                                                                                                                           
+        return f"{self.uuid} | Arrendatario: {self.arrendatario} | Estado: {self.estado}"
+
+
+###########################################################################
+### MODELO DOCUMENTOS DE LA SOLICITUD ###
+###########################################################################
+class SolicitudDocumento(models.Model):
+    solicitud = models.ForeignKey(
+        SolicitudArriendo,
+        on_delete=models.CASCADE,
+        related_name="documentos_solicitud"
+    )
+    archivo = models.FileField(
+        upload_to="solicitudes/documentos/",
+        validators=[
+            FileExtensionValidator(allowed_extensions=["pdf", "doc", "docx"]),
+            FileSizeValidator(max_mb=10)
+        ]
+    )
+
+    def __str__(self):
+        return f"Documento de la solicitud para el inmueble {self.solicitud.inmueble.nombre}"
+
+    # Validación de cantidad de documentos por solicitud
+    def clean(self):
+        if not self.pk:  # Solo validar si ya existe
+            total_docs = self.solicitud.documentos_solicitud.count() + 1
+            if total_docs > MAX_DOCUMENTS_SOLI:
+                raise ValidationError(f"No se puede subir más de {MAX_DOCUMENTS_SOLI} documentos.")

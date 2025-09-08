@@ -1,5 +1,5 @@
 from django import forms
-from .models import SolicitudArriendo, Inmueble, InmuebleImagen, InmuebleDocumento, Region, Comuna, MIN_IMAGES, MAX_IMAGES, MIN_DOCUMENTS, MAX_DOCUMENTS
+from .models import *
 from django.forms import inlineformset_factory, BaseInlineFormSet
 from django.urls import reverse_lazy
 from django.core.exceptions import ValidationError
@@ -73,6 +73,7 @@ class InmuebleForm(RegionComunaFormMixin, forms.ModelForm):
 
 
 
+
 ###########################################################################
 # FORMSETS PERSONALIZADOS PARA VALIDACION MINIMA
 ###########################################################################
@@ -99,6 +100,7 @@ class DocumentoBaseFormSet(BaseInlineFormSet):
             raise ValidationError(f"Debes subir al menos {MIN_DOCUMENTS} documento que acredite que eres dueño del inmueble.")
 
 
+
 ###########################################################################
 # FORMSETS INLINE CON VALIDACION
 ###########################################################################
@@ -109,7 +111,8 @@ InmuebleImagenFormSet = inlineformset_factory(
     fields=["imagen"],
     extra=0,
     can_delete=True,
-    formset=ImagenBaseFormSet
+    formset=ImagenBaseFormSet,
+    max_num=MAX_IMAGES,
 )
 
 InmuebleDocumentoFormSet = inlineformset_factory(
@@ -118,7 +121,8 @@ InmuebleDocumentoFormSet = inlineformset_factory(
     fields=["archivo"],
     extra=0,
     can_delete=True,
-    formset=DocumentoBaseFormSet
+    formset=DocumentoBaseFormSet,
+    max_num=MAX_DOCUMENTS,
 )
 
 
@@ -129,3 +133,25 @@ class SolicitudArriendoForm(forms.ModelForm):
     class Meta:
         model = SolicitudArriendo
         fields = ['inmueble', 'mensaje']
+        widgets = {
+            'mensaje': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'style':'resize:vertical;'}),
+        }
+
+class SolicitudDocumentoBaseFormSet(BaseInlineFormSet):
+    def clean(self):
+        super().clean()
+        total_forms = sum(
+            1 for form in self.forms if form.cleaned_data and not form.cleaned_data.get('DELETE', False)
+        )
+        if total_forms < MIN_DOCUMENTS_SOLI:
+            raise ValidationError(f"Debes subir al menos {MIN_DOCUMENTS_SOLI} documentos.")
+
+SolicitudDocumentoFormSet = inlineformset_factory(
+    SolicitudArriendo,
+    SolicitudDocumento,
+    fields=["archivo"],
+    extra=0,
+    can_delete=True,
+    formset=SolicitudDocumentoBaseFormSet,
+    max_num=MAX_DOCUMENTS_SOLI,
+)

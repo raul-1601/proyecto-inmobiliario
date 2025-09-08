@@ -6,11 +6,18 @@ from django.utils.translation import gettext_lazy as _
 
 
 class PerfilUser(AbstractUser):
+    class TipoUsuario(models.TextChoices):
+        arrendador = 'ARRENDADOR', _('Arrendador')
+        arrendatario = 'ARRENDATARIO', _('Arrendatario')
+
     rut = models.CharField(max_length=50, unique=True)
     direccion = models.CharField(max_length=100, blank=True, null=True)
     comuna = models.ForeignKey('portal.Comuna', on_delete=models.SET_NULL, null=True, blank=True)
+    tipo_usuario = models.CharField(max_length=20, choices=TipoUsuario.choices, default=TipoUsuario.arrendatario)
+    foto_perfil = models.ImageField(upload_to='fotos_perfil/', blank=True, null=True)
 
-    REQUIRED_FIELDS = ['rut', 'email', 'first_name', 'last_name']
+
+    REQUIRED_FIELDS = ['rut', 'email', 'first_name', 'last_name', 'tipo_usuario']
 
     def __str__(self):
         return f"{self.get_username()} | {self.rut}"

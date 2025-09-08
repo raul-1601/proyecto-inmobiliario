@@ -9,6 +9,10 @@ urlpatterns = [
     path('inmueble/<int:pk>/eliminar/', InmuebleDeleteView.as_view(), name='inmueble_delete'),
     path('crear_inmueble/', InmuebleCreateView, name='inmueble_create'),
     path('mis_inmuebles', MisInmueblesListView.as_view(), name='my_properties'),
+
+    path('solicitudes/crear/<int:inmueble_id>/', SolicitudArriendoCreateView, name='solicitud_create'),
+    path('solicitudes_arrendador/', SolicitudesArrendadorListView.as_view(), name='solicitudes_arrendador'),
+
     path("ajax/cargar-comunas/", cargar_comunas_ajax, name="cargar_comunas_ajax"),
 ]
 
