@@ -48,5 +48,4 @@ def logout_view(request):
     return redirect("home")
 
 
-def profile_view(request):
-    return render(request, "profile/profile.html")
+

@@ -10,6 +10,8 @@ urlpatterns = [
     path('crear_inmueble/', InmuebleCreateView, name='inmueble_create'),
     path('mis_inmuebles', MisInmueblesListView.as_view(), name='my_properties'),
 
+    path('perfil/', profile_view, name='profile'),
+
     path('solicitudes/crear/<int:inmueble_id>/', SolicitudArriendoCreateView, name='solicitud_create'),
     path('solicitudes_arrendador/', SolicitudesArrendadorListView.as_view(), name='solicitudes_arrendador'),
 

@@ -6,6 +6,8 @@ from .forms import *
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.db import transaction
+from users.models import PerfilUser
+from users.forms import ProfileUpdateForm
 
 
 
@@ -65,7 +67,7 @@ class InmueblePublicListView(ListView):
 ## LISTAR INMUEBLES DEL USUARIO (SECCION "MI PERFIL")
 class MisInmueblesListView(LoginRequiredMixin, ListView):
     model = Inmueble
-    template_name = 'profile/my_inmueble_list.html'
+    template_name = 'profile/profile.html'
     context_object_name = 'mis_inmuebles'
     ordering = ["-id"]
 
@@ -110,22 +112,36 @@ class InmuebleDeleteView(LoginRequiredMixin, DeleteView):
 @login_required
 def SolicitudArriendoCreateView(request, inmueble_id):
     """Crear una solicitud de arriendo con sus documentos."""
+
+    # Creamos la instancia en memoria con los datos iniciales
     instance = SolicitudArriendo(arrendatario=request.user, inmueble_id=inmueble_id)
 
     if request.method == "POST":
+        # Primero llenamos el formulario con POST
         form = SolicitudArriendoForm(request.POST, instance=instance)
-        doc_formset = SolicitudDocumentoFormSet(
-            request.POST, request.FILES, instance=instance, prefix="documentos"
-        )
 
-        if form.is_valid() and doc_formset.is_valid():
-            with transaction.atomic():
-                form.save()
+        if form.is_valid():
+            # Guardamos la solicitud principal primero, para que tenga PK
+            instance = form.save(commit=False)
+            instance.arrendatario = request.user
+            instance.inmueble_id = inmueble_id
+            instance.save()  # <-- aquí se guarda en DB y ahora tiene pk
+
+            # Ahora sí podemos instanciar el formset con instance guardada
+            doc_formset = SolicitudDocumentoFormSet(
+                request.POST, request.FILES, instance=instance, prefix="documentos"
+            )
+
+            if doc_formset.is_valid():
                 doc_formset.save()
-            messages.success(request, "Solicitud creada correctamente.")
-            return redirect("solicitud_list")
+                messages.success(request, "Solicitud creada correctamente.")
+                return redirect("home")
+            else:
+                messages.error(request, "Corrige los errores en los documentos.")
         else:
-            messages.error(request, "Corrige los errores en el formulario y vuelve a enviar.")
+            # Si el form principal no es válido, creamos un formset vacío para mostrar
+            doc_formset = SolicitudDocumentoFormSet(instance=instance, prefix="documentos")
+            messages.error(request, "Corrige los errores en el formulario principal.")
     else:
         form = SolicitudArriendoForm(instance=instance)
         doc_formset = SolicitudDocumentoFormSet(instance=instance, prefix="documentos")
@@ -136,6 +152,7 @@ def SolicitudArriendoCreateView(request, inmueble_id):
         "inmueble": instance.inmueble
     }
     return render(request, "solicitud/solicitud_form.html", context)
+
 
             
 
@@ -186,8 +203,6 @@ class SolicitudArriendoDeleteView(LoginRequiredMixin, DeleteView):
         ### VISTA AJAX PARA CARGAR COMUNAS EN FORMULARIOS ###
 
 ###########################################################################
-from django.shortcuts import render
-from .models import Comuna
 
 def cargar_comunas_ajax(request):
     region_id = request.GET.get("region")
@@ -198,3 +213,50 @@ def cargar_comunas_ajax(request):
     except Exception:
         comunas = []
     return render(request, "partials/comuna_option.html", {"comunas": comunas})
+
+
+
+
+###########################################################################
+
+@login_required
+def profile_view(request):
+    mis_inmuebles = None
+    gestion_solicitudes = None
+    mis_solicitudes = None
+
+    if request.user.tipo_usuario == PerfilUser.TipoUsuario.arrendador:
+        mis_inmuebles = Inmueble.objects.filter(propietario=request.user).order_by("-id")
+        gestion_solicitudes = SolicitudArriendo.objects.filter(inmueble__propietario=request.user).order_by('inmueble__id', 'creado')
+    else:
+        mis_solicitudes = SolicitudArriendo.objects.filter(arrendatario=request.user).order_by("-creado")
+
+    if request.method == "POST":
+        form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user)
+        if form.is_valid():
+            user = form.save(commit=False)
+            
+            # Si hay contraseña nueva, cambiarla
+            if form.cleaned_data.get("new_password1"):
+                if request.user.check_password(form.cleaned_data.get("old_password")):
+                    user.set_password(form.cleaned_data.get("new_password1"))
+                else:
+                    form.add_error("old_password", "Contraseña actual incorrecta")
+                    return render(request, "profile/profile.html", context)
+
+            user.save()
+            messages.success(request, "Perfil actualizado correctamente")
+            return redirect("profile")
+    else:
+        form = ProfileUpdateForm(instance=request.user)
+
+    context = {
+        "user": request.user,
+        "mis_inmuebles": mis_inmuebles,
+        "gestion_solicitudes": gestion_solicitudes,
+        "mis_solicitudes": mis_solicitudes,
+        "form": form,
+        "regiones": Region.objects.all(),
+        "comunas": Comuna.objects.filter(region=request.user.comuna.region if request.user.comuna else None)
+    }
+    return render(request, "profile/profile.html", context)

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Inmueble, InmuebleImagen, InmuebleDocumento, Comuna, Region
+from .models import Inmueble, InmuebleImagen, InmuebleDocumento, Comuna, Region, SolicitudArriendo, SolicitudDocumento
 
 # -------------------------
 # Inlines para Imágenes y Documentos
@@ -69,3 +69,36 @@ class RegionAdmin(admin.ModelAdmin):
     list_display = ('nombre', 'zona')
     list_filter = ('zona',)
     search_fields = ('nombre',)
+
+
+###########################################################################
+# Inline para documentos de la solicitud
+###########################################################################
+class SolicitudDocumentoInline(admin.TabularInline):
+    """
+    Permite gestionar los documentos de cada solicitud directamente
+    dentro del admin de SolicitudArriendo.
+    """
+    model = SolicitudDocumento
+    extra = 1  # Muestra un formulario vacío adicional para subir
+    readonly_fields = ('archivo_link',)
+    fields = ('archivo', 'archivo_link')
+
+    def archivo_link(self, obj):
+        if obj.archivo:
+            return f'<a href="{obj.archivo.url}" target="_blank">{obj.archivo.name}</a>'
+        return "-"
+    archivo_link.allow_tags = True
+    archivo_link.short_description = "Documento"
+
+###########################################################################
+# Admin de SolicitudArriendo
+###########################################################################
+@admin.register(SolicitudArriendo)
+class SolicitudArriendoAdmin(admin.ModelAdmin):
+    list_display = ('id', 'inmueble', 'arrendatario', 'estado', 'creado', 'actualizado')
+    list_filter = ('estado', 'inmueble__tipo_inmueble')
+    search_fields = ('arrendatario__username', 'inmueble__nombre', 'uuid')
+    readonly_fields = ('uuid', 'creado', 'actualizado')
+    ordering = ('-creado',)
+    inlines = [SolicitudDocumentoInline]

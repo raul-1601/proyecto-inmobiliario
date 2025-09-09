@@ -1,5 +1,7 @@
 from django import forms
 from .models import PerfilUser
+from django.forms import ModelForm
+from portal.models import Comuna, Region
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import authenticate
 from portal.forms import RegionComunaFormMixin
@@ -74,4 +76,40 @@ class LoginForm(forms.Form):
 
     def get_user(self):
         return self.user_cache
- 
+
+
+###########################################################################
+### FORM EDITAR PERFIL ###
+###########################################################################
+
+
+
+
+class ProfileUpdateForm(forms.ModelForm):
+    # Campo extra para seleccionar la región
+    region = forms.ModelChoiceField(
+        queryset=Region.objects.all(),
+        required=False,
+        label="Región",
+        widget=forms.Select(attrs={
+            "class": "form-select",
+            "hx-get": "/cargar-comunas-ajax/",       # tu endpoint HTMX
+            "hx-target": "#id_comuna",               # el select de comuna
+            "hx-trigger": "change"
+        })
+    )
+
+    class Meta:
+        model = PerfilUser
+        fields = ["first_name", "last_name", "email", "direccion", "comuna", "foto_perfil"]
+        widgets = {
+            "first_name": forms.TextInput(attrs={"readonly": "readonly"}),
+            "last_name": forms.TextInput(attrs={"readonly": "readonly"}),
+            "comuna": forms.Select(attrs={"class": "form-select", "id": "id_comuna"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Inicializa el campo region según la comuna actual
+        if self.instance.comuna:
+            self.fields['region'].initial = self.instance.comuna.region
