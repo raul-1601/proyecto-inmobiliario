@@ -11,12 +11,12 @@
       <!-- Sidebar -->
       <div class="col-md-3 pt-0">
         <div class="list-group list-group-flush account-settings-links">
-          <a class="list-group-item list-group-item-action active" data-bs-toggle="list" href="#mi-perfil">Mi perfil</a>
-          <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#actualizar-datos">Actualizar datos y contraseña</a>
+          <a class="list-group-item list-group-item-action {% if tab_activo == 'mi-perfil' %}active{% endif %}" data-bs-toggle="list" href="#mi-perfil">Mi perfil</a>
+          <a class="list-group-item list-group-item-action {% if tab_activo == 'actualizar-datos' %}active{% endif %}" data-bs-toggle="list" href="#actualizar-datos">Actualizar datos</a>
 
           {% if user.tipo_usuario == "ARRENDADOR" %}
             <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#mis-propiedades">Mis propiedades</a>
-            <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#mis-solicitudes">Solicitudes recibidas</a>
+            <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#gestionar-solicitudes">Solicitudes recibidas</a>
           {% else %}
             <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#mis-solicitudes">Mis solicitudes</a>
           {% endif %}
@@ -28,7 +28,7 @@
         <div class="tab-content">
 
           <!-- Sección Mi Perfil -->
-          <div class="tab-pane fade active show" id="mi-perfil">
+          <div class="tab-pane fade {% if tab_activo == 'mi-perfil' %}active show{% endif %}" id="mi-perfil">
             <div class="card-body media align-items-center">
               {% if user.foto_perfil %}
                 <img src="{{ user.foto_perfil.url }}" alt="Foto de perfil" class="d-block ui-w-80">
@@ -36,7 +36,7 @@
                 <img src="{% static 'default-profile.png' %}" alt="Sin foto" class="d-block ui-w-80">
               {% endif %}
               <div class="media-body ml-4">
-                <h5>Nombre de usuario: {{ user.username }}</h5>
+                <h5>Username: {{ user.username }}</h5>
                 <p>Nombre y Apellido: {{ user.first_name }} {{ user.last_name }}</p>
                 <p>RUT: {{ user.rut }}</p>
                 <p>Email: {{ user.email }}</p>
@@ -51,54 +51,66 @@
           </div>
 
           <!-- Sección Actualizar datos y contraseña -->
-          <div class="tab-pane fade" id="actualizar-datos">
+          <div class="tab-pane fade {% if tab_activo == 'actualizar-datos' %}active show{% endif %}" id="actualizar-datos">
             <div class="card-body">
               <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
-                <div class="form-group">
-                  <label class="form-label">Correo</label>
-                  <input type="email" name="email" class="form-control" value="{{ user.email }}">
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Dirección</label>
-                  <input type="text" name="direccion" class="form-control" value="{{ user.direccion }}">
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Región</label>
-                  <select name="region" id="region-select" class="form-select" hx-get="{% url 'cargar_comunas_ajax' %}" hx-target="#comuna-select" hx-trigger="change">
-                    <option value="">Seleccione una región</option>
-                    {% for region in regiones %}
-                      <option value="{{ region.id }}" {% if user.comuna and user.comuna.region.id == region.id %}selected{% endif %}>{{ region.nombre }}</option>
-                    {% endfor %}
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Comuna</label>
-                  <select name="comuna" id="comuna-select" class="form-select">
-                    {% if user.comuna %}
-                      <option value="{{ user.comuna.id }}" selected>{{ user.comuna.nombre }}</option>
-                    {% else %}
-                      <option value="">Seleccione una comuna</option>
+                <div class="form-group mb-3">
+                    <label class="form-label">Username</label>
+                    {{ form.username|add_class:"form-control" }}
+                    {% if form.username.errors %}
+                        <div class="text-danger small mt-1">
+                            {{ form.username.errors.0 }}
+                        </div>
                     {% endif %}
-                  </select>
                 </div>
+
+                <div class="form-group mb-3">
+                    <label class="form-label">Correo</label>
+                    {{ form.email|add_class:"form-control" }}
+                    {% if form.email.errors %}
+                        <div class="text-danger small mt-1">
+                            {{ form.email.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group mb-3">
+                    <label class="form-label">Dirección</label>
+                    {{ form.direccion|add_class:"form-control" }}
+                    {% if form.direccion.errors %}
+                        <div class="text-danger small mt-1">
+                            {{ form.direccion.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+
                 <div class="form-group">
-                  <label class="form-label">Foto de perfil</label>
-                  <input type="file" name="foto_perfil" class="form-control">
+                    <label class="form-label">Foto de perfil</label>
+                    <input type="file" name="foto_perfil" class="form-control">
                 </div>
                 <hr>
                 <h6>Cambiar contraseña</h6>
                 <div class="form-group">
                   <label class="form-label">Contraseña actual</label>
                   <input type="password" name="old_password" class="form-control">
+                  {% if form.old_password.errors %}
+                    <div class="text-danger">{{ form.old_password.errors.0 }}</div>
+                  {% endif %}
                 </div>
                 <div class="form-group">
                   <label class="form-label">Nueva contraseña</label>
                   <input type="password" name="new_password1" class="form-control">
+                  {% if form.new_password1.errors %}
+                    <div class="text-danger">{{ form.new_password1.errors }}</div>
+                  {% endif %}
                 </div>
                 <div class="form-group">
                   <label class="form-label">Repite nueva contraseña</label>
                   <input type="password" name="new_password2" class="form-control">
+                  {% if form.new_password2.errors %}
+                    <div class="text-danger">{{ form.new_password2.errors }}</div>
+                  {% endif %}
                 </div>
                 <button type="submit" class="btn btn-primary">Guardar cambios</button>
               </form>
@@ -180,6 +192,13 @@
                         <span style="min-width: 100px;">{% if solicitud.inmueble.comuna %}{{ solicitud.inmueble.comuna.nombre }}{% else %}N/A{% endif %}</span>
                         <span style="min-width: 100px;">{% if solicitud.inmueble.comuna and solicitud.inmueble.comuna.region %}{{ solicitud.inmueble.comuna.region.nombre }}{% else %}N/A{% endif %}</span>
                       </div>
+                      {% if solicitud.estado == 'PENDIENTE' %}
+                        <a href="{% url 'solicitud_delete' solicitud.id %}" class="btn btn-sm btn-danger me-2" style="min-width: 80px; text-align: center;">
+                          Eliminar Solicitud
+                        </a>
+                      {% endif %}
+                      </form>
+                      
                       <span class="badge 
                         {% if solicitud.estado == 'PENDIENTE' %}bg-warning
                         {% elif solicitud.estado == 'APROBADA' %}bg-success

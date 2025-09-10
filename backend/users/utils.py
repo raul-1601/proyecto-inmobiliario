@@ -14,5 +14,4 @@ def generar_username(nombre: str, apellido: str) -> str:
     while PerfilUser.objects.filter(username=username).exists():
         username = f"{base_username}_{numero}_{contador}"
         contador += 1
-
     return username

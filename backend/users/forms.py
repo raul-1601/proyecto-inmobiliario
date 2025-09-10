@@ -1,10 +1,11 @@
 from django import forms
 from .models import PerfilUser
-from django.forms import ModelForm
 from portal.models import Comuna, Region
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from django.contrib.auth import authenticate
 from portal.forms import RegionComunaFormMixin
+from django.core.exceptions import ValidationError
+from django.contrib.auth.validators import UnicodeUsernameValidator
 
 
 ### FORMULARIO DE REGISTRO ###
@@ -83,33 +84,59 @@ class LoginForm(forms.Form):
 ###########################################################################
 
 
-
-
-class ProfileUpdateForm(forms.ModelForm):
-    # Campo extra para seleccionar la región
+class ProfileUpdateForm(UserChangeForm):
     region = forms.ModelChoiceField(
         queryset=Region.objects.all(),
         required=False,
         label="Región",
         widget=forms.Select(attrs={
             "class": "form-select",
-            "hx-get": "/cargar-comunas-ajax/",       # tu endpoint HTMX
-            "hx-target": "#id_comuna",               # el select de comuna
+            "hx-get": "/cargar-comunas-ajax/",
+            "hx-target": "#id_comuna",
             "hx-trigger": "change"
         })
     )
 
+    # Campos de contraseña extra
+    old_password = forms.CharField(
+        label="Contraseña actual",
+        required=False,
+        widget=forms.PasswordInput(attrs={"class": "form-control"})
+    )
+    new_password1 = forms.CharField(
+        label="Nueva contraseña",
+        required=False,
+        widget=forms.PasswordInput(attrs={"class": "form-control"})
+    )
+    new_password2 = forms.CharField(
+        label="Repite nueva contraseña",
+        required=False,
+        widget=forms.PasswordInput(attrs={"class": "form-control"})
+    )
+
     class Meta:
         model = PerfilUser
-        fields = ["first_name", "last_name", "email", "direccion", "comuna", "foto_perfil"]
-        widgets = {
-            "first_name": forms.TextInput(attrs={"readonly": "readonly"}),
-            "last_name": forms.TextInput(attrs={"readonly": "readonly"}),
-            "comuna": forms.Select(attrs={"class": "form-select", "id": "id_comuna"}),
-        }
+        fields = ["username", "first_name", "last_name", "email", "direccion", "comuna", "foto_perfil"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Inicializa el campo region según la comuna actual
         if self.instance.comuna:
             self.fields['region'].initial = self.instance.comuna.region
+
+    def clean_username(self):
+        username = self.cleaned_data.get("username")
+        
+        # Primero verificamos unicidad
+        if PerfilUser.objects.exclude(pk=self.instance.pk).filter(username=username).exists():
+            raise forms.ValidationError("Ese nombre de usuario ya está en uso.")
+
+
+        validator = UnicodeUsernameValidator()
+        try:
+            validator(username)
+        except ValidationError:
+            raise forms.ValidationError(
+                "Nombre de usuario inválido. Solo puede contener letras, números y @/./+/-/_"
+            )
+        
+        return username

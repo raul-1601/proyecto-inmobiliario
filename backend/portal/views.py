@@ -1,6 +1,7 @@
 from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
 from .models import *
+from django.contrib.auth import password_validation
 from django.views.generic import ListView, UpdateView, DeleteView, CreateView, DetailView  
 from .forms import *
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -191,7 +192,7 @@ class SolicitudArriendoUpdateView(LoginRequiredMixin, UpdateView):
 class SolicitudArriendoDeleteView(LoginRequiredMixin, DeleteView):
     model = SolicitudArriendo
     template_name = 'solicitud/solicitud_confirm_delete.html'
-    success_url = reverse_lazy('solicitud_list')
+    success_url = reverse_lazy('profile')
 
     def get_queryset(self):
         return SolicitudArriendo.objects.filter(arrendatario=self.request.user)
@@ -224,6 +225,8 @@ def profile_view(request):
     mis_inmuebles = None
     gestion_solicitudes = None
     mis_solicitudes = None
+    tab_activo = "mi-perfil"
+    form = None
 
     if request.user.tipo_usuario == PerfilUser.TipoUsuario.arrendador:
         mis_inmuebles = Inmueble.objects.filter(propietario=request.user).order_by("-id")
@@ -235,18 +238,53 @@ def profile_view(request):
         form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user)
         if form.is_valid():
             user = form.save(commit=False)
-            
-            # Si hay contraseña nueva, cambiarla
-            if form.cleaned_data.get("new_password1"):
-                if request.user.check_password(form.cleaned_data.get("old_password")):
-                    user.set_password(form.cleaned_data.get("new_password1"))
-                else:
-                    form.add_error("old_password", "Contraseña actual incorrecta")
-                    return render(request, "profile/profile.html", context)
 
-            user.save()
-            messages.success(request, "Perfil actualizado correctamente")
-            return redirect("profile")
+            new_password1 = form.cleaned_data.get("new_password1")
+            new_password2 = form.cleaned_data.get("new_password2")
+            old_password = form.cleaned_data.get("old_password")
+            print("---------------------formulario valido-----------------------")
+            if new_password1 or new_password2 or old_password:
+                if not old_password:
+                    print("---------------------contraseña actual vacia-----------------------")
+                    form.add_error("old_password","La contraseña actual es obligatoria para cambiar la contraseña.")
+                elif not request.user.check_password(old_password):
+                    form.add_error("old_password","La contraseña actual es incorrecta.")
+
+                if not new_password1 or not new_password2:
+                    form.add_error("new_password1","Ambos campos de nueva contraseña son obligatorios.")
+                if new_password1 != new_password2:
+                    form.add_error("new_password2", "Las nuevas contraseñas no coinciden.")
+
+                
+                if new_password1:
+                    try:
+                        password_validation.validate_password(new_password1, user)
+                    except ValidationError as e:
+                        form.add_error("new_password1", " ".join(e.messages))
+
+
+                if form.errors:
+                    tab_activo = "actualizar-datos"
+
+                else:
+                    user.set_password(new_password1)
+
+
+            
+            if not new_password1 and not new_password2 and not old_password and not form.has_changed():
+                print("---------------------no se realizaron cambios-----------------------")
+                messages.info(request, "No se realizaron cambios.")
+                return redirect("profile")
+
+            elif not form.errors:
+                user.save()
+                messages.success(request, "Perfil actualizado correctamente")
+                return redirect("profile")
+
+
+        else:
+            tab_activo = "actualizar-datos"
+
     else:
         form = ProfileUpdateForm(instance=request.user)
 
@@ -257,6 +295,7 @@ def profile_view(request):
         "mis_solicitudes": mis_solicitudes,
         "form": form,
         "regiones": Region.objects.all(),
-        "comunas": Comuna.objects.filter(region=request.user.comuna.region if request.user.comuna else None)
+        "comunas": Comuna.objects.filter(region=request.user.comuna.region if request.user.comuna else None),
+        "tab_activo": tab_activo,
     }
     return render(request, "profile/profile.html", context)
