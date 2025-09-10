@@ -2,7 +2,7 @@
 {% load static %}
 {% load widget_tweaks %}
 
-{% block title %}Crear Solicitud{% endblock %}
+{% block title %}{% if is_update %}Actualizar{% else %}Crear{% endif %} Solicitud{% endblock %}
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'portal/css/inmueble.css' %}">
@@ -13,11 +13,14 @@
 <div class="container inmueble-form-container shadow-lg py-4 px-3 px-md-5">
     <div class="row justify-content-center">
         <div class="col-12 col-xl-8">
-            <h1 class="mb-4 text-center fw-bold text-primary">Crear Solicitud de Arriendo</h1>
+            <h1 class="mb-4 text-center fw-bold text-primary">
+                {% if is_update %}Actualizar{% else %}Crear{% endif %} Solicitud de Arriendo
+            </h1>
 
             <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
                 {% csrf_token %}
 
+                <!-- Mensaje al Propietario -->
                 <fieldset class="mb-4 p-4 bg-white rounded-4 border border-2">
                     <legend class="mb-3 fs-5 text-secondary">Mensaje al Propietario</legend>
                     {{ form.non_field_errors }}
@@ -35,6 +38,7 @@
                     {% endfor %}
                 </fieldset>
 
+                <!-- Documentos -->
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-header bg-gradient bg-success text-white rounded-top-3">
                         <strong><i class="bi bi-file-earmark-text"></i> Documentos</strong>
@@ -45,10 +49,18 @@
                             <div id="documentos-forms">
                                 {% for form in doc_formset %}
                                     <div class="formset-form mb-2 d-flex align-items-center">
-                                        {{ form.archivo|add_class:"form-control" }}
-                                        {% if form.DELETE %}
-                                            <button type="button" class="remove-form ms-2" onclick="removeForm(this)" title="Eliminar documento">✖</button>
+                                        {% if is_update and form.instance.pk %}
+                                            <!-- Documento existente -->
+                                            <a href="{{ form.instance.archivo.url }}" target="_blank" class="flex-fill">
+                                                {{ form.instance.archivo.name|slice:":30" }}
+                                            </a>
                                             <span style="display:none;">{{ form.DELETE }}</span>
+                                            <button type="button" class="remove-form ms-2" onclick="removeForm(this)" title="Eliminar documento">✖</button>
+                                        {% else %}
+                                            <!-- Documento nuevo -->
+                                            {{ form.archivo|add_class:"form-control flex-fill" }}
+                                            <span style="display:none;">{{ form.DELETE }}</span>
+                                            <button type="button" class="remove-form ms-2" onclick="removeForm(this)" title="Eliminar documento">✖</button>
                                         {% endif %}
                                         {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
                                         {% for error in form.non_field_errors %}
@@ -63,17 +75,20 @@
                             <p class="text-muted mt-2 mb-0">Máximo {{ doc_formset.max_num }} documentos</p>
                             <div id="documentos-empty-form" style="display: none;">
                                 <div class="formset-form mb-2 d-flex align-items-center">
-                                    <input type="file" name="documentos-__prefix__-archivo" id="id_documentos-__prefix__-archivo" class="form-control">
+                                    <input type="file" name="documentos-__prefix__-archivo" id="id_documentos-__prefix__-archivo" class="form-control flex-fill">
+                                    <span style="display:none;"><input type="checkbox" name="documentos-__prefix__-DELETE"></span>
                                     <button type="button" class="remove-form ms-2" onclick="removeForm(this)" title="Eliminar documento">✖</button>
-                                    <input type="checkbox" name="documentos-__prefix__-DELETE" style="display:none;">
                                 </div>
                             </div>
                         </fieldset>
                     </div>
                 </div>
 
+                <!-- Botón Enviar -->
                 <div class="mt-5 mb-5">
-                    <button type="submit" class="btn btn-success w-100 py-2 fs-5 shadow-sm">Enviar Solicitud</button>
+                    <button type="submit" class="btn btn-success w-100 py-2 fs-5 shadow-sm">
+                        {% if is_update %}Actualizar Solicitud{% else %}Enviar Solicitud{% endif %}
+                    </button>
                 </div>
             </form>
         </div>

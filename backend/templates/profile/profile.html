@@ -18,7 +18,7 @@
             <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#mis-propiedades">Mis propiedades</a>
             <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#gestionar-solicitudes">Solicitudes recibidas</a>
           {% else %}
-            <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#mis-solicitudes">Mis solicitudes</a>
+            <a class="list-group-item list-group-item-action {% if tab_activo == 'mis-solicitudes' %}active{% endif %}" data-bs-toggle="list" href="#mis-solicitudes">Mis solicitudes</a>
           {% endif %}
         </div>
       </div>
@@ -59,9 +59,7 @@
                     <label class="form-label">Username</label>
                     {{ form.username|add_class:"form-control" }}
                     {% if form.username.errors %}
-                        <div class="text-danger small mt-1">
-                            {{ form.username.errors.0 }}
-                        </div>
+                        <div class="text-danger small mt-1">{{ form.username.errors.0 }}</div>
                     {% endif %}
                 </div>
 
@@ -69,9 +67,7 @@
                     <label class="form-label">Correo</label>
                     {{ form.email|add_class:"form-control" }}
                     {% if form.email.errors %}
-                        <div class="text-danger small mt-1">
-                            {{ form.email.errors.0 }}
-                        </div>
+                        <div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>
                     {% endif %}
                 </div>
 
@@ -79,9 +75,7 @@
                     <label class="form-label">Dirección</label>
                     {{ form.direccion|add_class:"form-control" }}
                     {% if form.direccion.errors %}
-                        <div class="text-danger small mt-1">
-                            {{ form.direccion.errors.0 }}
-                        </div>
+                        <div class="text-danger small mt-1">{{ form.direccion.errors.0 }}</div>
                     {% endif %}
                 </div>
 
@@ -123,10 +117,18 @@
             <div class="card-body">
               <h5>Mis propiedades</h5>
               <ul class="list-group">
+                <li class="list-group-item d-flex fw-bold">
+                  <div class="flex-fill" style="min-width: 120px;">Nombre</div>
+                  <div class="flex-fill" style="min-width: 150px;">Dirección</div>
+                  <div style="min-width: 100px;">Acciones</div>
+                </li>
                 {% for propiedad in mis_inmuebles %}
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
-                    {{ propiedad.nombre }} - {{ propiedad.direccion }}
-                    <a href="" class="btn btn-sm btn-outline-primary">Editar</a>
+                  <li class="list-group-item d-flex align-items-center">
+                    <div class="flex-fill" style="min-width: 120px;">{{ propiedad.nombre }}</div>
+                    <div class="flex-fill" style="min-width: 150px;">{{ propiedad.direccion }}</div>
+                    <div style="min-width: 100px;">
+                      <a href="#" class="btn btn-sm btn-outline-primary">Actualizar</a>
+                    </div>
                   </li>
                 {% empty %}
                   <li class="list-group-item">No tienes propiedades publicadas.</li>
@@ -137,36 +139,40 @@
           {% endif %}
 
           <!-- Sección Solicitudes -->
-          <div class="tab-pane fade" id="mis-solicitudes">
+          <div class="tab-pane fade {% if tab_activo == 'mis-solicitudes' %}active show{% endif %}" id="mis-solicitudes">
             <div class="card-body">
               {% if user.tipo_usuario == "ARRENDADOR" %}
                 <h5>Solicitudes recibidas</h5>
                 <ul class="list-group">
-                  <li class="list-group-item d-flex align-items-center fw-bold">
-                    <div class="d-flex gap-4 flex-grow-1">
-                      <span style="min-width: 120px;">Arrendatario</span>
-                      <span style="min-width: 120px;">Nombre inmueble</span>
-                      <span style="min-width: 150px;">Dirección</span>
-                      <span style="min-width: 100px;">Comuna</span>
-                      <span style="min-width: 100px;">Región</span>
-                    </div>
-                    <span>Estado</span>
+                  <li class="list-group-item d-flex fw-bold">
+                    <div class="flex-fill" style="min-width: 120px;">Arrendatario</div>
+                    <div class="flex-fill" style="min-width: 120px;">Nombre inmueble</div>
+                    <div class="flex-fill" style="min-width: 150px;">Dirección</div>
+                    <div class="flex-fill" style="min-width: 100px;">Comuna</div>
+                    <div class="flex-fill" style="min-width: 100px;">Región</div>
+                    <div style="min-width: 120px;">Acciones</div>
+                    <div style="min-width: 80px;">Estado</div>
                   </li>
                   {% for solicitud in gestion_solicitudes %}
                     <li class="list-group-item d-flex align-items-center">
-                      <div class="d-flex gap-4 flex-grow-1">
-                        <span style="min-width: 120px;">{{ solicitud.arrendatario }}</span>
-                        <span style="min-width: 120px;">{{ solicitud.inmueble.nombre }}</span>
-                        <span style="min-width: 150px;">{{ solicitud.inmueble.direccion }}</span>
-                        <span style="min-width: 100px;">{% if solicitud.inmueble.comuna %}{{ solicitud.inmueble.comuna.nombre }}{% else %}N/A{% endif %}</span>
-                        <span style="min-width: 100px;">{% if solicitud.inmueble.comuna and solicitud.inmueble.comuna.region %}{{ solicitud.inmueble.comuna.region.nombre }}{% else %}N/A{% endif %}</span>
+                      <div class="flex-fill" style="min-width: 120px;">{{ solicitud.arrendatario }}</div>
+                      <div class="flex-fill" style="min-width: 120px;">{{ solicitud.inmueble.nombre }}</div>
+                      <div class="flex-fill" style="min-width: 150px;">{{ solicitud.inmueble.direccion }}</div>
+                      <div class="flex-fill" style="min-width: 100px;">{% if solicitud.inmueble.comuna %}{{ solicitud.inmueble.comuna.nombre }}{% else %}N/A{% endif %}</div>
+                      <div class="flex-fill" style="min-width: 100px;">{% if solicitud.inmueble.comuna and solicitud.inmueble.comuna.region %}{{ solicitud.inmueble.region.nombre }}{% else %}N/A{% endif %}</div>
+                      <div style="min-width: 120px;">
+                        {% if solicitud.estado == 'PENDIENTE' %}
+                          <a href="#" class="btn btn-sm btn-outline-primary me-2 mb-1">Actualizar</a>
+                        {% endif %}
                       </div>
-                      <span class="badge 
-                        {% if solicitud.estado == 'PENDIENTE' %}bg-warning
-                        {% elif solicitud.estado == 'APROBADA' %}bg-success
-                        {% else %}bg-danger{% endif %}">
-                        {{ solicitud.estado }}
-                      </span>
+                      <div style="min-width: 80px;">
+                        <span class="badge 
+                          {% if solicitud.estado == 'PENDIENTE' %}bg-warning
+                          {% elif solicitud.estado == 'APROBADA' %}bg-success
+                          {% else %}bg-danger{% endif %}">
+                          {{ solicitud.estado }}
+                        </span>
+                      </div>
                     </li>
                   {% empty %}
                     <li class="list-group-item">No has recibido solicitudes de arriendo.</li>
@@ -175,36 +181,38 @@
               {% else %}
                 <h5>Mis solicitudes</h5>
                 <ul class="list-group">
-                  <li class="list-group-item d-flex align-items-center fw-bold">
-                    <div class="d-flex gap-4 flex-grow-1">
-                      <span style="min-width: 120px;">Nombre inmueble</span>
-                      <span style="min-width: 150px;">Dirección</span>
-                      <span style="min-width: 100px;">Comuna</span>
-                      <span style="min-width: 100px;">Región</span>
-                    </div>
-                    <span>Estado</span>
+                  <li class="list-group-item d-flex fw-bold">
+                    <div class="flex-fill" style="min-width: 120px;">Nombre inmueble</div>
+                    <div class="flex-fill" style="min-width: 150px;">Dirección</div>
+                    <div class="flex-fill" style="min-width: 100px;">Comuna</div>
+                    <div class="flex-fill" style="min-width: 100px;">Región</div>
+                    <div style="min-width: 120px;">Acciones</div>
+                    <div style="min-width: 80px;">Estado</div>
                   </li>
                   {% for solicitud in mis_solicitudes %}
                     <li class="list-group-item d-flex align-items-center">
-                      <div class="d-flex gap-4 flex-grow-1">
-                        <span style="min-width: 120px;">{{ solicitud.inmueble.nombre }}</span>
-                        <span style="min-width: 150px;">{{ solicitud.inmueble.direccion }}</span>
-                        <span style="min-width: 100px;">{% if solicitud.inmueble.comuna %}{{ solicitud.inmueble.comuna.nombre }}{% else %}N/A{% endif %}</span>
-                        <span style="min-width: 100px;">{% if solicitud.inmueble.comuna and solicitud.inmueble.comuna.region %}{{ solicitud.inmueble.comuna.region.nombre }}{% else %}N/A{% endif %}</span>
+                      <div class="flex-fill" style="min-width: 120px;">{{ solicitud.inmueble.nombre }}</div>
+                      <div class="flex-fill" style="min-width: 150px;">{{ solicitud.inmueble.direccion }}</div>
+                      <div class="flex-fill" style="min-width: 100px;">{% if solicitud.inmueble.comuna %}{{ solicitud.inmueble.comuna.nombre }}{% else %}N/A{% endif %}</div>
+                      <div class="flex-fill" style="min-width: 100px;">{% if solicitud.inmueble.comuna and solicitud.inmueble.comuna.region %}{{ solicitud.inmueble.comuna.region.nombre }}{% else %}N/A{% endif %}</div>
+
+                      <!-- Botones -->
+                      <div style="min-width: 120px;">
+                        {% if solicitud.estado == 'PENDIENTE' %}
+                          <a href="{% url 'solicitud_delete' solicitud.id %}" class="btn btn-sm btn-danger me-2 mb-1">Eliminar</a>
+                          <a href="{% url 'solicitud_update' solicitud.id %}" class="btn btn-sm btn-outline-primary mb-1">Actualizar</a>
+                        {% endif %}
                       </div>
-                      {% if solicitud.estado == 'PENDIENTE' %}
-                        <a href="{% url 'solicitud_delete' solicitud.id %}" class="btn btn-sm btn-danger me-2" style="min-width: 80px; text-align: center;">
-                          Eliminar Solicitud
-                        </a>
-                      {% endif %}
-                      </form>
-                      
-                      <span class="badge 
-                        {% if solicitud.estado == 'PENDIENTE' %}bg-warning
-                        {% elif solicitud.estado == 'APROBADA' %}bg-success
-                        {% else %}bg-danger{% endif %}">
-                        {{ solicitud.estado }}
-                      </span>
+
+                      <!-- Estado -->
+                      <div style="min-width: 80px;">
+                        <span class="badge 
+                          {% if solicitud.estado == 'PENDIENTE' %}bg-warning
+                          {% elif solicitud.estado == 'APROBADA' %}bg-success
+                          {% else %}bg-danger{% endif %}">
+                          {{ solicitud.estado }}
+                        </span>
+                      </div>
                     </li>
                   {% empty %}
                     <li class="list-group-item">No has realizado solicitudes de arriendo.</li>

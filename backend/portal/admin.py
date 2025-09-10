@@ -102,3 +102,9 @@ class SolicitudArriendoAdmin(admin.ModelAdmin):
     readonly_fields = ('uuid', 'creado', 'actualizado')
     ordering = ('-creado',)
     inlines = [SolicitudDocumentoInline]
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs  # El superusuario ve todas las solicitudes
+        return qs.filter(arrendatario=request.user)  # Otros solo ven las suyas

@@ -150,7 +150,8 @@ def SolicitudArriendoCreateView(request, inmueble_id):
     context = {
         "form": form,
         "doc_formset": doc_formset,
-        "inmueble": instance.inmueble
+        "inmueble": instance.inmueble,
+        "is_update": False,
     }
     return render(request, "solicitud/solicitud_form.html", context)
 
@@ -183,19 +184,51 @@ class SolicitudArriendoUpdateView(LoginRequiredMixin, UpdateView):
     model = SolicitudArriendo
     form_class = SolicitudArriendoForm
     template_name = 'solicitud/solicitud_form.html'
-    success_url = reverse_lazy('solicitud_list')
 
     def get_queryset(self):
         return SolicitudArriendo.objects.filter(arrendatario=self.request.user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        instance = self.get_object()
+        context['is_update'] = True
+        if self.request.method == "POST":
+            # si es POST, instanciamos con POST/FILES
+            context['doc_formset'] = SolicitudDocumentoFormSet(
+                self.request.POST, self.request.FILES, instance=instance, prefix="documentos"
+            )
+        else:
+            # si es GET, solo mostramos los existentes
+            context['doc_formset'] = SolicitudDocumentoFormSet(instance=instance, prefix="documentos")
+        context['inmueble'] = instance.inmueble
+        return context
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        doc_formset = context['doc_formset']
+        if doc_formset.is_valid():
+            self.object = form.save()
+            doc_formset.instance = self.object
+            doc_formset.save()
+            messages.success(self.request, "Solicitud actualizada correctamente.")
+            return super().form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    def get_success_url(self):
+        return f"{reverse_lazy('profile')}?tab=mis-solicitudes"
+
 
 ## ELIMINAR SOLICITUD DE ARRIENDO
 class SolicitudArriendoDeleteView(LoginRequiredMixin, DeleteView):
     model = SolicitudArriendo
     template_name = 'solicitud/solicitud_confirm_delete.html'
-    success_url = reverse_lazy('profile')
 
     def get_queryset(self):
         return SolicitudArriendo.objects.filter(arrendatario=self.request.user)
+
+    def get_success_url(self): 
+        return f"{reverse_lazy('profile')}?tab=mis-solicitudes"
 
 
 
@@ -225,8 +258,9 @@ def profile_view(request):
     mis_inmuebles = None
     gestion_solicitudes = None
     mis_solicitudes = None
-    tab_activo = "mi-perfil"
     form = None
+
+    tab_activo = request.GET.get("tab", "mi-perfil")
 
     if request.user.tipo_usuario == PerfilUser.TipoUsuario.arrendador:
         mis_inmuebles = Inmueble.objects.filter(propietario=request.user).order_by("-id")
@@ -242,10 +276,8 @@ def profile_view(request):
             new_password1 = form.cleaned_data.get("new_password1")
             new_password2 = form.cleaned_data.get("new_password2")
             old_password = form.cleaned_data.get("old_password")
-            print("---------------------formulario valido-----------------------")
             if new_password1 or new_password2 or old_password:
                 if not old_password:
-                    print("---------------------contraseña actual vacia-----------------------")
                     form.add_error("old_password","La contraseña actual es obligatoria para cambiar la contraseña.")
                 elif not request.user.check_password(old_password):
                     form.add_error("old_password","La contraseña actual es incorrecta.")
@@ -272,7 +304,6 @@ def profile_view(request):
 
             
             if not new_password1 and not new_password2 and not old_password and not form.has_changed():
-                print("---------------------no se realizaron cambios-----------------------")
                 messages.info(request, "No se realizaron cambios.")
                 return redirect("profile")
 
