@@ -100,12 +100,16 @@
                 <li class="list-group-item d-flex fw-bold">
                   <div class="flex-fill" style="min-width: 120px;">Nombre</div>
                   <div class="flex-fill" style="min-width: 150px;">Dirección</div>
+                  <div class="flex-fill" style="min-width: 100px;">Arrendado</div>
                   <div style="min-width: 150px;">Acciones</div>
                 </li>
                 {% for propiedad in mis_inmuebles %}
                   <li class="list-group-item d-flex align-items-center">
                     <div class="flex-fill" style="min-width: 120px;">{{ propiedad.nombre }}</div>
                     <div class="flex-fill" style="min-width: 150px;">{{ propiedad.direccion }}</div>
+                    <div class="flex-fill" style="min-width: 100px;">
+                      {% if propiedad.arrendado %}Sí{% else %}No{% endif %}
+                    </div>
                     <!-- Botones de acción propiedad -->
                     <div style="min-width: 150px;">
                       <a href="{% url 'inmueble_update' propiedad.id %}" class="btn btn-sm btn-outline-primary me-2 mb-1">Actualizar</a>
@@ -152,6 +156,9 @@
                     <div style="min-width: 150px;">
                       {% if solicitud.estado == 'PENDIENTE' %}
                         <a href="{% url 'solicitud_manage' solicitud.id %}" class="btn btn-sm btn-outline-primary">Gestionar solicitud</a>
+
+                      {% elif solicitud.estado == 'APROBADA' %}
+                        <a href="{% url 'arriendo_cancel' solicitud.id %}" class="btn btn-sm btn-outline-danger">Finalizar Arriendo</a>
                       {% endif %}
                     </div>
                   </li>

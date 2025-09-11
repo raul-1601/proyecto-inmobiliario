@@ -77,6 +77,25 @@ class MisInmueblesListView(LoginRequiredMixin, ListView):
     
 
 ## VISTA DE DETALLE DE INMUEBLE 
+def inmueble_detail_view(request, pk):
+    inmueble = get_object_or_404(Inmueble, pk=pk)
+    user = request.user if request.user.is_authenticated else None
+
+    solicitado = False
+    if user.is_authenticated and user.tipo_usuario == PerfilUser.TipoUsuario.arrendatario:
+        solicitado = SolicitudArriendo.objects.filter(arrendatario=user, inmueble=inmueble).exists()
+
+        solicitud = SolicitudArriendo.objects.get(arrendatario=user, inmueble=inmueble) if solicitado else None
+        if solicitud and solicitud.estado == SolicitudArriendo.EstadoSolicitud.rechazada:
+            solicitado = False  # Permitir nueva solicitud si la anterior fue rechazada
+
+    context = {
+        "inmueble": inmueble,
+        "solicitado": solicitado,
+    }
+    return render(request, "inmueble/detail.html", context)
+
+
 class InmuebleDetailView(DetailView):
     model = Inmueble
     template_name = 'inmueble/detail.html'
@@ -353,24 +372,45 @@ def profile_view(request):
 def solicitud_update_arrendador_view(request, pk):
     """Actualizar estado de solicitud por arrendador y ver documentos/ mensaje."""
     solicitud = get_object_or_404(SolicitudArriendo, pk=pk, inmueble__propietario=request.user)
-    from .forms import EstadoForm  # Asegúrate de tener este form en forms.py
+
     form = EstadoForm(request.POST or None, instance=solicitud)
 
     # Formset solo para mostrar documentos, deshabilitados
-    doc_formset = SolicitudDocumentoFormSet(instance=solicitud, prefix="documentos")
-    for f in doc_formset.forms:
-        for field in f.fields:
-            f.fields[field].disabled = True
+    documentos = solicitud.documentos_solicitud.all()
 
     if request.method == "POST" and form.is_valid():
-        form.save()
+        solicitud.estado = form.cleaned_data['estado']
+        solicitud.save(update_fields=['estado'])
+        inmueble = solicitud.inmueble
+        if solicitud.estado == SolicitudArriendo.EstadoSolicitud.aprobada:
+            inmueble.arrendado = True
+            inmueble.save(update_fields=['arrendado'])
         messages.success(request, "Estado de la solicitud actualizado correctamente.")
         return redirect("profile")
+    
 
     context = {
         "form": form,
-        "doc_formset": doc_formset,
+        "documentos": documentos,
         "inmueble": solicitud.inmueble,
-        "is_update": True,
     }
-    return render(request, "solicitud/solicitud_form.html", context)
+    return render(request, "solicitud/solicitud_arrendador.html", context)
+
+
+
+#############################################################################
+@login_required
+def finalizar_arriendo_view(request, pk):
+    solicitud = get_object_or_404(SolicitudArriendo, pk=pk, inmueble__propietario=request.user)
+    inmueble = solicitud.inmueble
+
+    if request.method == "POST":
+        solicitud.estado = SolicitudArriendo.EstadoSolicitud.rechazada
+        solicitud.save(update_fields=['estado'])
+
+        inmueble.arrendado = False
+        inmueble.save(update_fields=['arrendado'])
+        return redirect("profile")
+    
+    return render(request, "solicitud/finalizar_arriendo.html", {"solicitud": solicitud, "inmueble": inmueble})
+    

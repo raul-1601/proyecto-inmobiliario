@@ -162,7 +162,8 @@ SolicitudDocumentoFormSet = inlineformset_factory(
 class EstadoForm(forms.ModelForm):
     class Meta:
         model = SolicitudArriendo
-        fields = ['estado']  # Solo se puede modificar el estado
+        fields = ['mensaje','estado']  # Solo se puede modificar el estado
         widgets = {
+            'mensaje': forms.Textarea(attrs={'class': 'form-control', 'readonly': 'readonly'}),
             'estado': forms.Select(attrs={'class': 'form-control'}),
         }

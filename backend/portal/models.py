@@ -184,11 +184,7 @@ class SolicitudArriendo(models.Model):
 ### MODELO DOCUMENTOS DE LA SOLICITUD ###
 ###########################################################################
 class SolicitudDocumento(models.Model):
-    solicitud = models.ForeignKey(
-        SolicitudArriendo,
-        on_delete=models.CASCADE,
-        related_name="documentos_solicitud"
-    )
+    solicitud = models.ForeignKey(SolicitudArriendo, on_delete=models.CASCADE,related_name="documentos_solicitud")
     archivo = models.FileField(
         upload_to="solicitudes/documentos/",
         validators=[

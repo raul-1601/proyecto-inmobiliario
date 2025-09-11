@@ -1,0 +1,57 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Confirmar Cancelación de Arriendo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header bg-danger text-white text-center rounded-top-4">
+                    <h4 class="mb-0">Confirmar Cancelación de Arriendo</h4>
+                </div>
+                <div class="card-body p-4">
+                    <p class="fs-5 text-center mb-3">
+                        Estás a punto de finalizar el arriendo del inmueble:  
+                        <strong>{{ inmueble.nombre }}</strong>
+                    </p>
+
+                    <p class="text-muted text-center mb-4">
+                        UUID de la solicitud: <strong>{{ solicitud.uuid }}</strong>
+                    </p>
+
+                    <p class="fs-6 text-muted text-center mb-4">
+                        Una vez <strong>finalizado el arriendo</strong>, se notificará al arrendatario.  
+                        Este tendrá <strong>1 mes para desalojar</strong> el inmueble o lo que estipule el contrato vigente.
+                    </p>
+
+                    <div class="alert alert-warning text-center" role="alert">
+                        ⚠️ Esta acción no se puede deshacer.
+                    </div>
+
+                    <form method="post" class="d-flex flex-column flex-md-row justify-content-center gap-3 mt-4">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-lg px-4">
+                            Finalizar Arriendo
+                        </button>
+                        <a href="{% url 'profile' %}" class="btn btn-primary btn-lg px-4">
+                            Volver al Perfil
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

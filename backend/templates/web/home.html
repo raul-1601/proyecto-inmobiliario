@@ -28,22 +28,26 @@
         </div>
         <div class="row g-4">
             {% if inmuebles %}
+
                 {% for inmueble in inmuebles %}
-                    <div class="col-md-3">
-                        <div class="card property-card">
-                            {% if inmueble.imagenes_inmueble.first %}
-                                <img src="{{ inmueble.imagenes_inmueble.first.imagen.url }}" class="card-img-top" alt="{{ inmueble.nombre }}">
-                            {% else %}
-                                <img src="{% static 'images/default.jpg' %}" class="card-img-top" alt="Sin imagen">
-                            {% endif %}
-                            <div class="card-body">
-                                <h5 class="card-title text-primary">{{ inmueble.nombre }}</h5>
-                                <p class="card-text">{{ inmueble.descripcion|truncatechars:100 }}</p>
-                                <a href="{% url 'inmueble_detail' inmueble.id %}" class="btn btn-outline-primary">Ver más</a>
+                    {% if inmueble.arrendado == False %}
+                        <div class="col-md-3">
+                            <div class="card property-card">
+                                {% if inmueble.imagenes_inmueble.first %}
+                                    <img src="{{ inmueble.imagenes_inmueble.first.imagen.url }}" class="card-img-top" alt="{{ inmueble.nombre }}">
+                                {% else %}
+                                    <img src="{% static 'images/default.jpg' %}" class="card-img-top" alt="Sin imagen">
+                                {% endif %}
+                                <div class="card-body">
+                                    <h5 class="card-title text-primary">{{ inmueble.nombre }}</h5>
+                                    <p class="card-text">{{ inmueble.descripcion|truncatechars:100 }}</p>
+                                    <a href="{% url 'inmueble_detail' inmueble.id %}" class="btn btn-outline-primary">Ver más</a>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    {% endif %}
                 {% endfor %}
+                
             {% else %}
                 <p class="text-center text-muted">No hay inmuebles disponibles.</p>
             {% endif %}

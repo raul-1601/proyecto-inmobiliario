@@ -1,7 +1,7 @@
 {% extends "base/base.html" %}
 {% load static %}
 
-{% block title %}Detalle de {{ object.nombre }} - Property{% endblock %}
+{% block title %}Detalle de {{ inmueble.nombre }} - Property{% endblock %}
 
 {% block content %}
 
@@ -9,15 +9,15 @@
     <div class="row">
         <!-- Columna de miniaturas -->
         <div class="col-md-1 d-flex flex-column">
-            {% for imagen in object.imagenes_inmueble.all %}
+            {% for imagen in inmueble.imagenes_inmueble.all %}
                 <img src="{{ imagen.imagen.url }}" class="img-fluid mb-2 thumbnail-img" alt="Miniatura {{ forloop.counter }}" style="cursor:pointer;" onclick="cambiarImagen('{{ imagen.imagen.url }}')">
             {% endfor %}
         </div>
 
         <!-- Imagen principal -->
         <div class="col-md-5">
-            {% if object.imagenes_inmueble.first %}
-                <img id="imagen-principal" src="{{ object.imagenes_inmueble.first.imagen.url }}" class="img-fluid rounded" alt="{{ object.nombre }}">
+            {% if inmueble.imagenes_inmueble.first %}
+                <img id="imagen-principal" src="{{ inmueble.imagenes_inmueble.first.imagen.url }}" class="img-fluid rounded" alt="{{ inmueble.nombre }}">
             {% else %}
                 <img id="imagen-principal" src="{% static 'images/default.jpg' %}" class="img-fluid rounded" alt="Sin imagen">
             {% endif %}
@@ -25,19 +25,21 @@
 
         <!-- Información del inmueble -->
         <div class="col-md-6">
-            <h2 class="fw-bold">{{ object.nombre }}</h2>
-            <p>{{ object.descripcion }}</p>
-            <p><strong>Tipo:</strong> {{ object.get_tipo_inmueble_display }}</p>
-            <p><strong>Comuna:</strong> {{ object.comuna.nombre }}</p>
-            <p><strong>Región:</strong> {{ object.comuna.region.nombre }}</p>
-            <p><strong>Precio mensual:</strong> ${{ object.precio_mensual }}</p>
+            <h2 class="fw-bold">{{ inmueble.nombre }}</h2>
+            <p>{{ inmueble.descripcion }}</p>
+            <p><strong>Tipo:</strong> {{ inmueble.get_tipo_inmueble_display }}</p>
+            <p><strong>Comuna:</strong> {{ inmueble.comuna.nombre }}</p>
+            <p><strong>Región:</strong> {{ inmueble.comuna.region.nombre }}</p>
+            <p><strong>Precio mensual:</strong> ${{ inmueble.precio_mensual }}</p>
 
-            <!-- Botón de solicitar arriendo solo para arrendatarios y si no está arrendado -->
+            <!-- Botón de solicitar arriendo solo para arrendatarios y si no está arrendado y no hay solicitud previa -->
             {% if user.is_authenticated and user.tipo_usuario == "ARRENDATARIO" %}
-                {% if not object.arrendado %}
-                    <a href="{% url 'solicitud_create' object.id %}" class="btn btn-primary mt-3">
+                {% if not inmueble.arrendado and not solicitado %}
+                    <a href="{% url 'solicitud_create' inmueble.id %}" class="btn btn-primary mt-3">
                         <i class="bi bi-file-earmark-text me-1"></i> Solicitar arriendo
                     </a>
+                {% elif solicitado %}
+                    <p class="text-success mt-3"><em>Ya enviaste una solicitud para este inmueble. Si tu solicitud es rechazada puedes volver a intentarlo.</em></p>
                 {% else %}
                     <p class="text-danger mt-3"><em>Este inmueble ya está arrendado.</em></p>
                 {% endif %}
