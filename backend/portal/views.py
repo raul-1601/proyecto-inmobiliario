@@ -1,4 +1,4 @@
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import *
 from django.contrib.auth import password_validation
@@ -155,8 +155,15 @@ def SolicitudArriendoCreateView(request, inmueble_id):
     }
     return render(request, "solicitud/solicitud_form.html", context)
 
-
-            
+@login_required
+def gestion_solicitud_view(request):
+    if request.user.tipo_usuario != PerfilUser.TipoUsuario.arrendador and request.user.id: #########aquii
+        messages.error(request, "No tienes permiso para acceder a esta sección.")
+        return redirect("home")
+    
+    else:
+        
+    
 
 ## LISTAR SOLICITUDES DE ARRIENDO (SECCION "MI PERFIL")
 class SolicitudesArrendatarioListView(LoginRequiredMixin, ListView):
@@ -216,7 +223,7 @@ class SolicitudArriendoUpdateView(LoginRequiredMixin, UpdateView):
             return self.form_invalid(form)
 
     def get_success_url(self):
-        return f"{reverse_lazy('profile')}?tab=mis-solicitudes"
+        return reverse_lazy('profile')
 
 
 ## ELIMINAR SOLICITUD DE ARRIENDO
@@ -228,7 +235,7 @@ class SolicitudArriendoDeleteView(LoginRequiredMixin, DeleteView):
         return SolicitudArriendo.objects.filter(arrendatario=self.request.user)
 
     def get_success_url(self): 
-        return f"{reverse_lazy('profile')}?tab=mis-solicitudes"
+        return reverse_lazy('profile')
 
 
 
@@ -264,7 +271,9 @@ def profile_view(request):
 
     if request.user.tipo_usuario == PerfilUser.TipoUsuario.arrendador:
         mis_inmuebles = Inmueble.objects.filter(propietario=request.user).order_by("-id")
-        gestion_solicitudes = SolicitudArriendo.objects.filter(inmueble__propietario=request.user).order_by('inmueble__id', 'creado')
+        gestion_solicitudes = SolicitudArriendo.objects.filter(inmueble__propietario=request.user)
+
+
     else:
         mis_solicitudes = SolicitudArriendo.objects.filter(arrendatario=request.user).order_by("-creado")
 
