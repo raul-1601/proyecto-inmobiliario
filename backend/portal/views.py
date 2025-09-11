@@ -39,7 +39,7 @@ def InmuebleCreateView(request):
                 doc_formset.save()
 
             messages.success(request, "Inmueble creado correctamente.")
-            return redirect("my_properties")
+            return redirect("profile")
         else:
             messages.error(request, "Corrige los errores en el formulario y vuelve a enviar.")
 
