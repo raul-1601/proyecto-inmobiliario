@@ -155,3 +155,14 @@ SolicitudDocumentoFormSet = inlineformset_factory(
     formset=SolicitudDocumentoBaseFormSet,
     max_num=MAX_DOCUMENTS_SOLI,
 )
+
+
+############################################################################
+
+class EstadoForm(forms.ModelForm):
+    class Meta:
+        model = SolicitudArriendo
+        fields = ['estado']  # Solo se puede modificar el estado
+        widgets = {
+            'estado': forms.Select(attrs={'class': 'form-control'}),
+        }

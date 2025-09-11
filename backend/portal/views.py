@@ -157,11 +157,15 @@ def SolicitudArriendoCreateView(request, inmueble_id):
 
 @login_required
 def gestion_solicitud_view(request):
-    if request.user.tipo_usuario != PerfilUser.TipoUsuario.arrendador and request.user.id: #########aquii
+    solicitud_id = request.GET.get("solicitud_id")
+    solicitud = get_object_or_404(SolicitudArriendo, id=solicitud_id)
+
+    if request.user.tipo_usuario != PerfilUser.TipoUsuario.arrendador or solicitud.inmueble.propietario != request.user:
         messages.error(request, "No tienes permiso para acceder a esta sección.")
         return redirect("home")
     
     else:
+        return render(request, )
         
     
 
@@ -339,3 +343,34 @@ def profile_view(request):
         "tab_activo": tab_activo,
     }
     return render(request, "profile/profile.html", context)
+
+
+
+
+############################################################################
+
+@login_required
+def solicitud_update_arrendador_view(request, pk):
+    """Actualizar estado de solicitud por arrendador y ver documentos/ mensaje."""
+    solicitud = get_object_or_404(SolicitudArriendo, pk=pk, inmueble__propietario=request.user)
+    from .forms import EstadoForm  # Asegúrate de tener este form en forms.py
+    form = EstadoForm(request.POST or None, instance=solicitud)
+
+    # Formset solo para mostrar documentos, deshabilitados
+    doc_formset = SolicitudDocumentoFormSet(instance=solicitud, prefix="documentos")
+    for f in doc_formset.forms:
+        for field in f.fields:
+            f.fields[field].disabled = True
+
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Estado de la solicitud actualizado correctamente.")
+        return redirect("profile")
+
+    context = {
+        "form": form,
+        "doc_formset": doc_formset,
+        "inmueble": solicitud.inmueble,
+        "is_update": True,
+    }
+    return render(request, "solicitud/solicitud_form.html", context)

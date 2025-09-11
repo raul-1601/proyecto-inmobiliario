@@ -16,6 +16,7 @@ urlpatterns = [
     path('solicitudes_arrendador/', SolicitudesArrendadorListView.as_view(), name='solicitudes_arrendador'),
     path('solicitud_eliminar/<int:pk>/', SolicitudArriendoDeleteView.as_view(), name='solicitud_delete'),
     path('actualizar_solicitud/<int:pk>/', SolicitudArriendoUpdateView.as_view(), name='solicitud_update'),
+    path('gestionar_solicitud/<int:pk>/', solicitud_update_arrendador_view, name='solicitud_manage'),
 
     path("ajax/cargar-comunas/", cargar_comunas_ajax, name="cargar_comunas_ajax"),
 ]

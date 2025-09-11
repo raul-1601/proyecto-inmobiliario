@@ -108,8 +108,8 @@
                     <div class="flex-fill" style="min-width: 150px;">{{ propiedad.direccion }}</div>
                     <!-- Botones de acción propiedad -->
                     <div style="min-width: 150px;">
-                      <a href="#" class="btn btn-sm btn-outline-primary me-2 mb-1">Actualizar</a>
-                      <a href="#" class="btn btn-sm btn-danger mb-1">Eliminar</a>
+                      <a href="{% url 'inmueble_update' propiedad.id %}" class="btn btn-sm btn-outline-primary me-2 mb-1">Actualizar</a>
+                      <a href="{% url 'inmueble_delete' propiedad.id %}" class="btn btn-sm btn-danger mb-1">Eliminar</a>
                     </div>
                   </li>
                 {% empty %}
@@ -151,7 +151,7 @@
                     <!-- Botón gestionar si pendiente -->
                     <div style="min-width: 150px;">
                       {% if solicitud.estado == 'PENDIENTE' %}
-                        <a href="#" class="btn btn-sm btn-outline-primary">Gestionar solicitud</a>
+                        <a href="{% url 'solicitud_manage' solicitud.id %}" class="btn btn-sm btn-outline-primary">Gestionar solicitud</a>
                       {% endif %}
                     </div>
                   </li>
