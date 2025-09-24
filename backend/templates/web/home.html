@@ -6,25 +6,40 @@
 {% block content %}
 
 <!-- HERO -->
-<section class="hero-home text-white text-center" 
+<section class="hero-home text-center text-white position-relative" 
          style="background-image: url('{{ MEDIA_URL }}portal/hero.jpg'); 
                 background-size: cover; 
                 background-position: center;
                 padding-top: 7.5rem;
                 padding-bottom: 7.5rem;">
-    <div class="container py-5">
-        <h1 class="display-4 fw-bold">Find Your Dream Property</h1>
-        <p class="lead">The best properties available for you</p>
-        <a href="" class="btn btn-accent btn-lg mt-3">Ir a la Tienda</a>
+
+    <!-- Overlay oscuro -->
+    <div class="position-absolute top-0 start-0 w-100 h-100" 
+         style="background-color: rgba(0, 0, 0, 0.5);">
+    </div>
+
+    <!-- Contenido encima -->
+    <div class="container py-5 position-relative">
+        {% if not user.is_authenticated %}
+            <h1 class="display-4 fw-bold">Encuentra el arriendo de tus sueños</h1>
+            <p class="lead"><strong>Las mejores propiedades se encuentran aquí en PROPERTY.CL</strong></p>
+        {% elif user.tipo_usuario == "ARRENDATARIO" %}
+            <h1 class="display-4 fw-bold">Encuentra el arriendo de tus sueños</h1>
+            <p class="lead"><strong>Las mejores propiedades se encuentran aquí en PROPERTY.CL</strong></p>
+        {% elif user.tipo_usuario == "ARRENDADOR" %}
+            <h1 class="display-4 fw-bold">Publica tu inmueble en la mejor plataforma de arriendos</h1>
+            <p class="lead"><strong>Las mejores propiedades se encuentran aquí en PROPERTY.CL</strong></p>
+        {% endif %}
     </div>
 </section>
+
 
 <!-- FEATURED PROPERTIES -->
 <section class="py-5">
     <div class="container">
         <div class="text-center mb-5">
-            <h2 class="fw-bold text-primary">Featured Properties</h2>
-            <p class="text-muted">Choose from our handpicked properties</p>
+            <h2 class="fw-bold text-primary">Propiedades Disponibles</h2>
+            <p class="text-muted">Elige la propiedad que mas te guste!</p>
         </div>
         <div class="row g-4">
             {% if inmuebles %}
