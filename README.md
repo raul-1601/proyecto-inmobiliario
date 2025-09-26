@@ -142,4 +142,6 @@ Este proyecto está bajo la licencia **MIT**. Puedes usarlo, modificarlo y distr
 
 ## 👨‍💻 Autor
 
-* Desarrollado por [Raúl](https://github.com/raul-1601)
+* Desarrollado por **Raúl Ignacio Ramírez Sanhueza**
+* Repositorio secundario: [raul-1601](https://github.com/raul-1601)
+* Perfil principal: [raul240sx](https://github.com/raul240sx)
