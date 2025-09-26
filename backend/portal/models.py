@@ -151,12 +151,15 @@ from django.core.validators import FileExtensionValidator
 from .validators import FileSizeValidator
 import uuid
 
-MIN_DOCUMENTS_SOLI = 3
-MAX_DOCUMENTS_SOLI = 5
+
 
 ###########################################################################
 ### MODELO SOLICITUD DE ARRIENDO ###
 ###########################################################################
+MIN_DOCUMENTS_SOLI = 2
+MAX_DOCUMENTS_SOLI = 5
+
+
 class SolicitudArriendo(models.Model):
 
     class EstadoSolicitud(models.TextChoices):
