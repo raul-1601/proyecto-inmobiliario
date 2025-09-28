@@ -33,7 +33,8 @@ Plataforma web para la **gestión de arriendos de propiedades** que conecta arre
 
 * **Backend:** Django (Python)
 * **Base de datos:** PostgreSQL
-* **Frontend:** Bootstrap, HTML, CSS, JS
+* **Visualizacion y administración DB:** PGAdmin
+* **Frontend:** Bootstrap, Jinja2, HTML, CSS, JS
 * **Contenedores:** Docker & Docker Compose
 * **Control de versiones:** Git & GitHub
 
@@ -114,6 +115,7 @@ El proyecto quedará disponible en `http://localhost:8000`.
 
 ## 🔮 Mejoras futuras
 
+* Mejoras en la interfaz visual.
 * Generación y firma de contratos digitales.
 * Notificaciones automáticas por email.
 * Gestión avanzada de solicitudes duplicadas.

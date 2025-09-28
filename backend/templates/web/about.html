@@ -1,0 +1,65 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block title %}Acerca de - Property{% endblock %}
+
+{% block content %}
+
+
+<section class="py-5" style="background-color: #1F2937; color: white;">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="fw-bold display-5">Sobre la Plataforma</h2>
+    </div>
+
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <p class="lead">
+          Esta plataforma ha sido diseñada para facilitar la <strong>publicación y gestión de inmuebles</strong> 
+          por parte de usuarios arrendadores, permitiendo también la generación y administración de 
+          <strong>solicitudes de arriendo</strong>. Nuestro objetivo es crear una experiencia intuitiva 
+          y eficiente tanto para arrendadores como para interesados en propiedades.
+        </p>
+      </div>
+    </div>
+
+    <!-- Autor -->
+    <div class="row justify-content-center mt-5">
+      <div class="col-lg-6">
+        <div class="card bg-dark text-white shadow-lg border-0">
+          <div class="card-body text-center">
+            <h5 class="card-title text-uppercase text-muted mb-3">Creado por</h5>
+            <h4 class="fw-bold">Raúl Ignacio Ramirez Sanhueza</h4>
+            <p class="mb-1">
+              ✉️ 
+              <a href="mailto:raul.ramirez1401@gmail.com" class="text-white text-decoration-underline">Correo (correo por defecto del sistema)</a> | 
+              <a href="https://mail.google.com/mail/?view=cm&fs=1&to=raul.ramirez1401@gmail.com" target="_blank" class="text-white text-decoration-underline">Abrir con Gmail</a>
+            </p>
+            <p class="mb-1">📱 +569 4285 7688</p>
+            <p class="text-muted small mt-2">Proyecto desarrollado para <strong>Desafío Latam</strong>.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Disclaimer -->
+    <div class="row justify-content-center mt-5">
+      <div class="col-lg-8">
+        <div class="alert alert-secondary bg-white text-dark shadow-sm">
+          <p class="mb-1">
+            ⚠️ <strong>Aviso Importante:</strong> Esta es una página de <em>prueba y demostración</em>. 
+            Todos los usuarios, direcciones y datos presentados son <strong>ficticios</strong> 
+            y no deben considerarse como información real.
+          </p>
+          <p class="mb-0">
+            El proyecto tiene fines exclusivamente <strong>educativos y de aprendizaje</strong>, 
+            sin ningún propósito comercial ni de uso en producción.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+{% endblock %}

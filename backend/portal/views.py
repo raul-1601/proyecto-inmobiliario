@@ -414,3 +414,8 @@ def finalizar_arriendo_view(request, pk):
     
     return render(request, "solicitud/finalizar_arriendo.html", {"solicitud": solicitud, "inmueble": inmueble})
     
+
+############################################################################
+
+def about_view(request):
+    return render(request, "web/about.html")

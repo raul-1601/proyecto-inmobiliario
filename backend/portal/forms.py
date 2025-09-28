@@ -113,6 +113,7 @@ InmuebleImagenFormSet = inlineformset_factory(
     can_delete=True,
     formset=ImagenBaseFormSet,
     max_num=MAX_IMAGES,
+    min_num=MIN_IMAGES,
 )
 
 InmuebleDocumentoFormSet = inlineformset_factory(
@@ -123,6 +124,7 @@ InmuebleDocumentoFormSet = inlineformset_factory(
     can_delete=True,
     formset=DocumentoBaseFormSet,
     max_num=MAX_DOCUMENTS,
+    min_num=MIN_DOCUMENTS,
 )
 
 
@@ -154,6 +156,7 @@ SolicitudDocumentoFormSet = inlineformset_factory(
     can_delete=True,
     formset=SolicitudDocumentoBaseFormSet,
     max_num=MAX_DOCUMENTS_SOLI,
+    min_num=MIN_DOCUMENTS_SOLI,
 )
 
 

@@ -4,6 +4,7 @@ from .views import *
 
 urlpatterns = [
     path('', InmueblePublicListView.as_view(), name='home'),
+    path('acerca_de/', about_view, name='about'),
     path('inmueble/<int:pk>/', inmueble_detail_view, name='inmueble_detail'),
     path('inmueble/<int:pk>/editar/', InmuebleUpdateView.as_view(), name='inmueble_update'),
     path('inmueble/<int:pk>/eliminar/', InmuebleDeleteView.as_view(), name='inmueble_delete'),
@@ -11,6 +12,7 @@ urlpatterns = [
     path('mis_inmuebles', MisInmueblesListView.as_view(), name='my_properties'),
 
     path('perfil/', profile_view, name='profile'),
+    
 
     path('solicitudes/crear/<int:inmueble_id>/', SolicitudArriendoCreateView, name='solicitud_create'),
     path('solicitudes_arrendador/', SolicitudesArrendadorListView.as_view(), name='solicitudes_arrendador'),
