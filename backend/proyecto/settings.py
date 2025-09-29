@@ -36,7 +36,9 @@ ALLOWED_HOSTS = ['*']
 AUTH_USER_MODEL = 'users.PerfilUser' ## nombre app.modelo_usuario_personalizado
 
 CSRF_TRUSTED_ORIGINS = [
-'https://localhost:8000'
+    'https://proyecto-inmobiliario-ybsw.onrender.com',
+    'http://proyecto-inmobiliario-ybsw.onrender.com',
+    'https://localhost:8000',
 ]
 
 # Application definition
