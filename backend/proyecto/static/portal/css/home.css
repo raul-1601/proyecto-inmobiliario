@@ -1,0 +1,50 @@
+/* Asegura que las cards tengan la misma altura */
+.property-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* Imagen fija y uniforme para todas las cards */
+.property-card .card-img-top {
+    height: 200px;       /* altura fija para todas las imágenes */
+    object-fit: cover;   /* mantiene proporción y recorta si es necesario */
+}
+
+/* Contenido de la card */
+.property-card .card-body {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* Contenedor flexible para limitar cards por fila y centrar si hay menos de 4 */
+.row.g-4 {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    justify-content: center; /* centra las cards en cada fila incompleta */
+}
+
+/* Cada card ocupa un máximo de 1/4 del ancho (4 cards por fila) */
+.col-md-3 {
+    flex: 0 0 25%;
+    max-width: 25%;
+    display: flex;
+}
+
+/* Opcional: hacer que las cards se vean mejor en móviles */
+@media (max-width: 992px) {
+    .col-md-3 {
+        flex: 0 0 50%;   /* 2 cards por fila en tablets */
+        max-width: 50%;
+    }
+}
+
+@media (max-width: 576px) {
+    .col-md-3 {
+        flex: 0 0 100%;  /* 1 card por fila en móviles */
+        max-width: 100%;
+    }
+}

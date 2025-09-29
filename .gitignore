@@ -27,11 +27,11 @@ pip-delete-this-directory.txt
 *.sqlite3
 db.sqlite3
 
-# Django specific
-local_settings.py
-media/
-staticfiles/
-static/
+# Django specific (desactivado para despliegue de prueba en Render.com)
+# local_settings.py
+# media/
+# staticfiles/
+# static/
 
 # Migraciones (solo cache y compilados, no los .py)
 */migrations/__pycache__/
