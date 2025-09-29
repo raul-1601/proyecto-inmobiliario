@@ -8,20 +8,22 @@ ENV PYTHONUNBUFFERED 1
 # Directorio de trabajo
 WORKDIR /usr/src/app
 
-# Copiar requirements.txt y instalar dependencias
-COPY requirements.txt .
+# Copiar requirements.txt desde backend/
+COPY backend/requirements.txt .
+
+# Instalar dependencias
 RUN pip install --upgrade pip && \
     pip install -r requirements.txt
 
-# Copiar todo el proyecto
-COPY . .
+# Copiar todo el contenido de backend/ al contenedor
+COPY backend/ .
 
-# Crear un script de inicio para Render Free
+# Crear script de inicio para Render Free
 RUN echo "#!/bin/bash\n\
 python manage.py migrate && \\\n\
 python manage.py collectstatic --noinput && \\\n\
 python manage.py runserver 0.0.0.0:8000" > start.sh && \
     chmod +x start.sh
 
-# Comando que Render ejecutará al iniciar el contenedor
+# CMD que Render ejecutará al levantar el contenedor
 CMD ["./start.sh"]
