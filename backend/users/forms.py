@@ -29,6 +29,14 @@ class RegisterForm(RegionComunaFormMixin, UserCreationForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields.pop('username', None)  # Eliminamos username
+
+        # Hacer campos obligatorios
+        self.fields['first_name'].required = True
+        self.fields['last_name'].required = True
+        self.fields['email'].required = True
+        self.fields['rut'].required = True
+        self.fields['direccion'].required = True
+        self.fields['comuna'].required = True
         
         # Modificar labels
         self.fields['first_name'].label = "Nombre"

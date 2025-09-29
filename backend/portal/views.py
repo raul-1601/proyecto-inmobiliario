@@ -79,19 +79,26 @@ class MisInmueblesListView(LoginRequiredMixin, ListView):
 ## VISTA DE DETALLE DE INMUEBLE 
 def inmueble_detail_view(request, pk):
     inmueble = get_object_or_404(Inmueble, pk=pk)
-    user = request.user if request.user.is_authenticated else None
+    solicitado = None
+    registrado = True
 
-    solicitado = False
-    if user.is_authenticated and user.tipo_usuario == PerfilUser.TipoUsuario.arrendatario:
-        solicitado = SolicitudArriendo.objects.filter(arrendatario=user, inmueble=inmueble).exists()
+    if not request.user.is_authenticated:
+        registrado = False
+    else:
+        user = request.user
 
-        solicitud = SolicitudArriendo.objects.get(arrendatario=user, inmueble=inmueble) if solicitado else None
-        if solicitud and solicitud.estado == SolicitudArriendo.EstadoSolicitud.rechazada:
-            solicitado = False  # Permitir nueva solicitud si la anterior fue rechazada
+
+        if user.tipo_usuario == PerfilUser.TipoUsuario.arrendatario:
+            solicitado = SolicitudArriendo.objects.filter(arrendatario=user, inmueble=inmueble).exists()
+
+            solicitud = SolicitudArriendo.objects.get(arrendatario=user, inmueble=inmueble) if solicitado else None
+            if solicitud and solicitud.estado == SolicitudArriendo.EstadoSolicitud.rechazada:
+                solicitado = False  # Permitir nueva solicitud si la anterior fue rechazada
 
     context = {
         "inmueble": inmueble,
         "solicitado": solicitado,
+        "registrado": registrado,
     }
     return render(request, "inmueble/detail.html", context)
 

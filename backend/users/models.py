@@ -14,10 +14,9 @@ class PerfilUser(AbstractUser):
     direccion = models.CharField(max_length=100, blank=True, null=True)
     comuna = models.ForeignKey('portal.Comuna', on_delete=models.SET_NULL, null=True, blank=True)
     tipo_usuario = models.CharField(max_length=20, choices=TipoUsuario.choices, default=TipoUsuario.arrendatario)
-    foto_perfil = models.ImageField(upload_to='fotos_perfil/', blank=True, null=True)
+    foto_perfil = models.ImageField(upload_to='fotos_perfil/', blank=True, null=True, default='fotos_perfil/default.jpg')
 
 
-    REQUIRED_FIELDS = ['rut', 'email', 'first_name', 'last_name', 'tipo_usuario']
 
     def __str__(self):
         return f"{self.get_username()} | {self.rut}"

@@ -6,7 +6,7 @@ from .validators import FileSizeValidator
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
 from django.core.validators import MinValueValidator, MaxValueValidator
-from decimal import Decimal
+
 
 
 
@@ -27,7 +27,7 @@ class Region(models.Model):
     nombre = models.CharField(max_length=50)
 
     def __str__(self):
-        return f"Region: {self.nombre} | Zona: {self.zona}"
+        return f"Region: {self.nombre}"
 
 
 ###########################################################################
@@ -64,15 +64,16 @@ class Inmueble(models.Model):
         parcela = "PARCELA", _("Parcela")
 
     propietario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="inmuebles", blank=True, null=True)
-    nombre = models.CharField(max_length=100)
-    descripcion = models.TextField()
-    m2_construidos = models.FloatField(default=0)
-    m2_totales = models.FloatField(default=0)
-    estacionamientos = models.PositiveIntegerField(default=0)
-    habitaciones = models.PositiveIntegerField(default=0)
-    banos = models.PositiveIntegerField(default=0)
-    direccion = models.CharField(max_length=100)
+    nombre = models.CharField("Nombre", max_length=100)
+    descripcion = models.TextField("Descripción")
+    m2_construidos = models.FloatField("Metros cuadrados construídos", default=0)
+    m2_totales = models.FloatField("Metros cuadrados totales", default=0)
+    estacionamientos = models.PositiveIntegerField("Cantidad de estacionamientos", default=0)
+    habitaciones = models.PositiveIntegerField("Cantidad de habitaciones", default=0)
+    banos = models.PositiveIntegerField("Cantidad de baños", default=0)
+    direccion = models.CharField("Calle y número", max_length=100)
     precio_mensual = models.DecimalField(
+        "Precio mensual (sin puntos ni comas)",
         max_digits=10,
         decimal_places=1,
         validators=[
@@ -83,7 +84,7 @@ class Inmueble(models.Model):
     creado = models.DateTimeField(auto_now_add=True)
     actualizado = models.DateTimeField(auto_now=True)
     comuna = models.ForeignKey(Comuna, on_delete=models.PROTECT)
-    tipo_inmueble = models.CharField(max_length=20, choices=TipoInmueble.choices)
+    tipo_inmueble = models.CharField("Tipo de inmueble", max_length=20, choices=TipoInmueble.choices)
     arrendado = models.BooleanField(default=False)
 
     ## validacion de la cantidad y tamaño de imagenes y documentos
