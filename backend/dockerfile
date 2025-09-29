@@ -28,6 +28,7 @@ COPY --chown=appuser:appuser backend/ .
 RUN echo '#!/bin/bash' > start.sh && \
     echo 'python manage.py migrate --noinput' >> start.sh && \
     echo 'python manage.py collectstatic --noinput' >> start.sh && \
+    echo 'python manage.py loaddata portal/fixtures/respaldo_portal_users.json' >> start.sh && \
     echo 'python manage.py runserver 0.0.0.0:8000' >> start.sh && \
     chmod +x start.sh
 
