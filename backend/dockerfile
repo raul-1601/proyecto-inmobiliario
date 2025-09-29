@@ -1,20 +1,27 @@
-FROM python:3.9
+# Base image
+FROM python:3.9-slim
 
-# Agrega estas líneas
-ARG USER_ID=1000
-ARG GROUP_ID=1000
-RUN groupadd -g $GROUP_ID appuser && \
-    useradd -u $USER_ID -g appuser -s /bin/sh -m appuser
-
-USER appuser
-
+# Evitar prompts y cache innecesario
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
+# Directorio de trabajo
 WORKDIR /usr/src/app
 
-COPY --chown=appuser:appuser requirements.txt .
+# Copiar requirements.txt y instalar dependencias
+COPY requirements.txt .
 RUN pip install --upgrade pip && \
     pip install -r requirements.txt
 
-COPY --chown=appuser:appuser . .
+# Copiar todo el proyecto
+COPY . .
+
+# Crear un script de inicio para Render Free
+RUN echo "#!/bin/bash\n\
+python manage.py migrate && \\\n\
+python manage.py collectstatic --noinput && \\\n\
+python manage.py runserver 0.0.0.0:8000" > start.sh && \
+    chmod +x start.sh
+
+# Comando que Render ejecutará al iniciar el contenedor
+CMD ["./start.sh"]
