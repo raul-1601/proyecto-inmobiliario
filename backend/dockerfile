@@ -1,29 +1,35 @@
-# Base image
+# --- Base image ---
 FROM python:3.9-slim
 
-# Evitar prompts y cache innecesario
+# --- Variables de entorno para Python ---
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-# Directorio de trabajo
+# --- Crear un usuario sin privilegios root ---
+ARG USER_ID=1000
+ARG GROUP_ID=1000
+RUN groupadd -g $GROUP_ID appuser && \
+    useradd -u $USER_ID -g appuser -s /bin/sh -m appuser
+
+USER appuser
+
+# --- Directorio de trabajo ---
 WORKDIR /usr/src/app
 
-# Copiar requirements.txt desde backend/
-COPY backend/requirements.txt .
+# --- Copiar requirements y instalar dependencias ---
+COPY --chown=appuser:appuser backend/requirements.txt .
+RUN python -m pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-# Instalar dependencias
-RUN pip install --upgrade pip && \
-    pip install -r requirements.txt
+# --- Copiar todo el código del backend ---
+COPY --chown=appuser:appuser backend/ .
 
-# Copiar todo el contenido de backend/ al contenedor
-COPY backend/ .
-
-# Crear script de inicio para Render Free
-RUN echo "#!/bin/bash\n\
-python manage.py migrate && \\\n\
-python manage.py collectstatic --noinput && \\\n\
-python manage.py runserver 0.0.0.0:8000" > start.sh && \
+# --- Crear script de arranque ---
+RUN echo '#!/bin/bash' > start.sh && \
+    echo 'python manage.py migrate --noinput' >> start.sh && \
+    echo 'python manage.py collectstatic --noinput' >> start.sh && \
+    echo 'python manage.py runserver 0.0.0.0:8000' >> start.sh && \
     chmod +x start.sh
 
-# CMD que Render ejecutará al levantar el contenedor
+# --- Comando por defecto ---
 CMD ["./start.sh"]
