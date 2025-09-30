@@ -1,0 +1,30 @@
+/* Contenedor general del formulario */
+.form-container {
+    padding: 2rem; /* espacio interno */
+    margin-top: 2rem; /* espacio desde el navbar */
+    margin-bottom: 3rem; /* espacio para que el botón no quede pegado al footer */
+    background-color: #fff; /* opcional, si quieres que destaque del fondo */
+    border-radius: 10px; /* esquinas suaves */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* sombra ligera */
+}
+
+/* Formulario responsivo: padding lateral en móviles */
+@media (max-width: 576px) {
+    .form-container {
+        padding: 1.5rem;
+        margin-left: 1rem;
+        margin-right: 1rem;
+    }
+}
+
+/* Titulos centrados */
+.form-container h2 {
+    font-weight: 600;
+}
+
+/* Botón más separado del resto */
+.form-container button[type="submit"] {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    font-size: 1rem;
+}

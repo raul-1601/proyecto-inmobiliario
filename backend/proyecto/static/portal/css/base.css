@@ -1,4 +1,22 @@
-body, main {
-    background-color: #f3f4f6; /* gris suave */
-    min-height: 100vh;
+html, body {
+    height: 100%;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* asegura que body siempre tenga al menos la altura de la pantalla */
+    background-color: #f3f4f6;
+}
+
+main {
+    flex: 1 0 auto; /* main crece y ocupa el espacio restante */
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+footer {
+    flex-shrink: 0; /* evita que el footer se encoja y quede en medio */
 }

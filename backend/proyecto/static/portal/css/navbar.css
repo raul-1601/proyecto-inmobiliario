@@ -1,10 +1,10 @@
 /* Fondo de la página */
 body, main {
-    background-color: #f3f4f6; /* gris suave */
+    background-color: #f3f4f6;
     min-height: 100vh;
 }
 
-/* Wrapper centrado */
+/* Wrapper centrado (desktop) */
 .navbar-wrapper {
     display: flex;
     justify-content: center;
@@ -13,16 +13,16 @@ body, main {
     padding-bottom: 1rem;
 }
 
-/* Navbar redondeado y alineado */
+/* Navbar redondeado y alineado (desktop) */
 .custom-navbar {
-    background-color: #1f2937; /* gris oscuro */
+    background-color: #1f2937;
     border-radius: 50px;
     padding: 0.6rem 1.5rem;
     max-width: 1200px;
     width: 95%;
 }
 
-/* Logo */
+/* Logo desktop */
 .custom-navbar .navbar-brand {
     color: #fff;
     font-size: 1.4rem;
@@ -30,16 +30,16 @@ body, main {
     text-decoration: none;
 }
 
-/* Links principales */
+/* Links principales desktop */
 .custom-navbar .navbar-nav {
     display: flex;
     align-items: center;
-    gap: 1rem; /* espacio entre links */
+    gap: 1rem;
 }
 
 /* Separar Home del logo */
 .custom-navbar .navbar-nav li:first-child {
-    margin-left: 2rem; /* ajusta según necesites */
+    margin-left: 2rem;
 }
 
 .custom-navbar .nav-link {
@@ -89,13 +89,26 @@ body, main {
     color: #fff;
 }
 
-/* Toggler personalizado */
+/* NAVBAR TOGGLER / BOTÓN HAMBURGUESA */
 .navbar-toggler {
     border: none;
     outline: none;
     margin-left: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    background: transparent;
 }
 
+/* Elimina outline azul o rectángulo predeterminado */
+.navbar-toggler:focus,
+.navbar-toggler:active {
+    outline: none;
+    box-shadow: none;
+}
+
+/* Icono hamburguesa */
 .toggler-icon {
     display: inline-block;
     width: 25px;
@@ -110,4 +123,66 @@ body, main {
     position: absolute;
     left: 0;
     width: 25px;
-    h
+    height: 2px;
+    background-color: #fff;
+}
+
+.toggler-icon::before {
+    top: -8px;
+}
+
+.toggler-icon::after {
+    top: 8px;
+}
+
+/* NAVBAR MÓVIL */
+.mobile-navbar {
+    background-color: #1F2937 !important;
+    padding: 0.75rem 0;
+    margin: 0;
+    position: relative;
+}
+
+/* Menú colapsable móvil full-width */
+.mobile-menu {
+    background-color: #1F2937;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    width: 100vw; /* ocupa toda la pantalla */
+    max-width: none;
+    left: 0;
+    position: relative;
+    box-sizing: border-box;
+}
+
+/* Navbar-nav móvil */
+.mobile-menu .navbar-nav {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 0.5rem;
+    padding: 0;
+    margin: 0;
+}
+
+/* Cada item <li> ocupa todo el ancho y alinea el contenido a la derecha */
+.mobile-menu .navbar-nav li {
+    width: 100%;
+    text-align: right;
+}
+
+/* Links dentro de <li> */
+.mobile-menu .nav-link {
+    color: #e5e7eb !important;
+    font-weight: 500;
+    padding: 0.75rem 1rem;
+    border-radius: 30px;
+    transition: all 0.25s ease;
+    text-align: right;
+    width: 100%;
+}
+
+.mobile-menu .nav-link:hover {
+    background-color: #2563eb;
+    color: #fff !important;
+}
